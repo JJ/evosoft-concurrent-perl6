@@ -12,6 +12,7 @@
 \acmPrice{15.00}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 <<setup, cache=FALSE,echo=FALSE>>=
 library(reshape2)
@@ -42,7 +43,7 @@ comparison.64 <- rbind(comparison.64,
 
 @ 
 
-\title{Going stateless in concurrent evolutionary algorithms}
+\title{Stateless evolutionary algorithms for concurrent and massively parallel architectures}
 
 \author{Juan J. Merelo}
 \orcid{1234-5678-9012}
@@ -336,7 +337,7 @@ released by the authors and called {\tt
   Algorithm::Evolutionary::Simple}. This library, released to the
 repository of Perl 6 modules, called CPAN, includes
 functions for the implementation of a very simple evolutionary
-algorithm for optimizing onemax, Royal Road or any other benchmark
+algorithm for optimizing OneMax, Royal Road or any other benchmark
 function.
 
 Perl 6 \cite{lenzperl} is, despite its name, a language that is
@@ -407,7 +408,7 @@ that is why we use it for all implementations.
 population.initial <- data.frame(Number=population.v2$V1,Evaluations=population.v2$value)
 ggplot(population.initial,aes(x=Number,y=Evaluations,group=Number))+geom_boxplot()+theme_tufte()+labs(x="Number of initial populations",y="Evaluations",title="Comparing population-level concurrent EA for different number of initial populations")+ scale_y_log10()
 @ 
-\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit onemax problem using the population-level concurrent algorithm with different number of initial populations.}
+\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit OneMax problem using the population-level concurrent algorithm with different number of initial populations.}
 \label{fig:pop:initial}
 \end{figure}
 %
@@ -415,9 +416,9 @@ ggplot(population.initial,aes(x=Number,y=Evaluations,group=Number))+geom_boxplot
 \begin{figure}[h!tb]
   \centering
 <<comparison-mo, cache=FALSE,echo=FALSE>>=
-ggplot(comparison.64,aes(x=algorithm,y=evaluations,group=algorithm))+geom_boxplot()+theme_tufte()+labs(x="Algorithm",y="Evaluations",title="Comparing algorithms for the 64 bit onemax problem")+ scale_y_log10()
+ggplot(comparison.64,aes(x=algorithm,y=evaluations,group=algorithm))+geom_boxplot()+theme_tufte()+labs(x="Algorithm",y="Evaluations",title="Comparing algorithms for the 64 bit OneMax problem")+ scale_y_log10()
 @ 
-\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit onemax problem in the individually concurrent and canonical EA version.}
+\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit OneMax problem in the individually concurrent and canonical EA version.}
 \label{fig:comparison}
 \end{figure}
 %
