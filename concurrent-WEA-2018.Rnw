@@ -1,18 +1,14 @@
-\documentclass[sigconf]{acmart}
+\documentclass[runningheads]{llncs}
+
 %%% Local Variables:
 %%% ispell-local-dictionary: "english"
 %%% End:
 \usepackage[utf8]{inputenc}
 \usepackage{booktabs} % For formal tables
 \usepackage{graphicx}
-\usepackage{rotating}
-\definecolor{Gray}{gray}{0.6}
 
-\acmArticle{4}
-\acmPrice{15.00}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 <<setup, cache=FALSE,echo=FALSE>>=
 library(reshape2)
@@ -40,150 +36,218 @@ comparison.64 <- rbind(comparison.64,
 comparison.64 <- rbind(comparison.64,
                        data.frame(bits=individual.64$bits,algorithm=rep('Individual concurrency',length(individual.64$bits)),evaluations=individual.64$evaluations))
 
+@
 
-@ 
+\title{Going stateless in concurrent evolutionary algorithms}
 
-\title{Stateless evolutionary algorithms for concurrent and massively parallel architectures}
+\author{Juan J. Merelo\inst{1}
+\and
+José-Mario García-Valdez\inst{2}}
 
-\author{Juan J. Merelo}
-\orcid{1234-5678-9012}
-\affiliation{%
-  \institution{Universidad de Granada}
-  \streetaddress{Daniel Saucedo Aranda, s/n}
-  \city{Granada}
-  \country{Spain}
-}
-\email{jmerelo@ugr.es}
-
-\author{José-Mario García-Valdez}
-\affiliation{%
-  \institution{Instituto Tecnológico de Tijuana}
-  \streetaddress{Calzada Tecnológico, s/n}
-  \city{Tijuana}
-  \country{Mexico}
-}
+\institute{%
+  Universidad de Granada/CITIC\\
+  Granada, Spain\\
+  \email{jmerelo@ugr.es}\\
+\and
+Instituto Tecnológico de Tijuana\\
+Calzada Tecnológico, s/n\\
+Tijuana\\
+Mexico\\
 \email{mario@tectijuana.edu.mx}
-
-% The default list of authors is too long for headers.
-\renewcommand{\shortauthors}{J. J. Merelo et al.}
-
-\begin{abstract}
-Concurrent languages such as Perl 6 fully leverage the power of current multi-core and hyper-threaded computer architectures. However, algorithms have to be redesigned in order to take full advantage of the concurrent abstraction; in particular, the use of a reactive pattern needs the algorithm to be stateless, with simple functions that receive all the context and map it to outputs. In this paper we are going to analyze different versions of these stateless, reactive architectures applied to evolutionary algorithms, assessing how they interact with the characteristics of the evolutionary algorithm itself to give a good scaling behavior and performance.
-\end{abstract}
-
-
-\keywords{Concurrent algorithms, distributed computing,
-  event-based systems, Kappa architecture, stateless algorithms,
-  algorithm implementation, performance evaluation, distributed
-  computing, pool-based systems, heterogeneous distributed systems,
-  serverless computing, functions as a service.}
+}
 
 \maketitle
 
+
+\begin{abstract}
+Concurrent languages such as Perl 6 fully leverage the power of
+current multi-core and hyper-threaded computer architectures, and they
+include easy ways of automatically parallelizing code. However, to
+achieve more computational capability by using all threads and cores,
+algorithms need to be redesigned to be run in a concurrent
+environment; in particular, the use of a reactive, fully functional
+patterns need to turn the algorithm into a series of stateless steps, with simple functions
+that receive all the context and map it to the next stage. In this paper, we
+are going to analyze different versions of these stateless, reactive
+architectures applied to evolutionary algorithms, assessing how they
+interact with the characteristics of the evolutionary algorithm itself
+and show how they improve the scaling behavior and performance. We will use the
+Perl 6 language, which is a modern, concurrent language that was
+released recently and is still under very active development.
+% Maybe change the paragraph: 'to give a good scaling behavior' to
+% something like 'and show how they improve the scaling behavior' - M
+% Done - JJ
+\keywords{Concurrent algorithms, distributed computing, stateless algorithms,
+algorithm implementation, performance evaluation, distributed computing,
+heterogeneous distributed systems.}
+\end{abstract}
+
 \section{Introduction}
 
-\noindent Genetic algorithms (GA) \cite{GA_Goldberg89} are currently
-one of the most widely used meta-heuristics to solve engineering
-problems. Furthermore, parallel genetic algorithms (pGAs) are useful
-to find  solutions of complex optimizations problems in adequate times
-\cite{Luque2011}; in particular, problems with complex fitness. Some
-authors \cite{Alba2001} state that using pGAs improves the quality of
+\noindent Evolutionary algorithms (EA) \cite{GA_Goldberg89} are currently
+one of the most widely used meta-heuristics to solve optimization
+problems in engineering. If the cost or adequacy of a solution can be
+measured in terms of a single function, called {\em fitness},
+evolutionary algorithms are generally able to find a good solution
+given enough time. 
+Furthermore, parallel and distributed evolutionary algorithms (pEAs) are useful
+to find  solutions of problems with a time-consuming fitness function
+\cite{Luque2011,merelo2018cloudy,gong2015distributed}
+% Was not very clear - M
+% Are they complex mostly in terms of running time or space?
+% In the next paragraph we talk about 'evaluation time'
+or problems that need many evaluations to find a good solution; in
+either case, using several computing {\em nodes} speeds ups the
+algorithm; even some
+authors \cite{Alba2001,Jini:Paralelos,evag:gpem} state that using pEAs improves the quality of
 solutions in terms of the number of evaluations needed to find
 one. This reason, together with the improvement in evaluation time
-brought by the simultaneous running in several nodes, have made
+brought by running simultaneously in several nodes, have made
 parallel and distributed evolutionary algorithms a popular
-methodology. 
+methodology.
 
-Implementing  evolutionary algorithms in parallel is relatively straightforward,
+One of the reasons for this popularity is that the implementation of
+EAs in parallel is relatively straightforward, by just dividing the
+population into computing nodes and using some messaging mechanism to
+interchange some members selected according to some optimality
+criterion \cite{DBLP:conf/gecco/AraujoGMC09}
 but programming paradigms used for the implementation of such
-algorithms is far from being an object of study. Object oriented or
+algorithms are far from being an object of study in the wide
+evolutionary algorithm area; object oriented or
 procedural languages like Java and C/C++ are mostly used. Even when
 some researchers show that implementation matters
-\cite{DBLP:conf/iwann/MereloRACML11}, parallels approaches in new
-languages/paradigms is not normally seen as a land for scientific
-improvements. 
+\cite{DBLP:conf/iwann/MereloRACML11}, parallel approaches found in new
+languages/paradigms are not usually pursued; this is what we intend to
+do in this paper.
 
-New parallel platforms have been identified as new trends in pGAs \cite{Luque2011}, however only hardware is considered. Software platforms, specifically programming languages, remain poorly explored; only Ada \cite{Santos2002} and Erlang \cite{A.Bienz2011,Kerdprasop2013} were slightly tested.
+The main reason for doing this is that, despite having identified new
+parallel platforms as a challenge in EAs \cite{Luque2011}, in general,
+only advances in hardware are considered. Software platforms,
+specifically programming languages, remain poorly explored; only Ada
+\cite{Santos2002}, Scala \cite{krzywicki2015massively} and Erlang
+\cite{A.Bienz2011,Kerdprasop2013,Stypka2018,butcher2018actor} have
+been analyzed in the area of evolutionary computation. Even so, the
+number of works on this area has increased lately, since the challenge
+of multi-core, hyper-threaded architectures \cite{SutterL05} need
+better applications, even simpler ones, to be
+parallelized. Eventually, this  shows the need use and
+create design patterns for concurrent algorithms; the conversion of a pattern
+into a language feature is a common practice in the programming languages domain,
+and sometimes that means a language modification, others the creation
+of a new one. 
 
-The multicore’s challenge \cite{SutterL05} shows a current need for making parallel even the simplest program. But this way leads us to use and create design patterns for concurrent algorithms; the conversion of a pattern into a language feature is a common practice in the programming languages domain, and sometimes that means a language modification, others the creation of a new one. 
 
-This work explores the advantages of Perl6
-\cite{Tang:2007:PRI:1190216.1190218},  a relatively new and decidedly
-non mainstream languages, since it is not included in the top ten of
-any most popular languages ranking) with concurrent and functional
-features in order to develop EAs in its parallel versions through
-concurrency. This paper, as well as similar ones preceding it \cite{DBLP:conf/gecco/CruzGGC13,Albert-Cruz2014169}, is
-motivated by the lack of community attention on the subject and the
-belief that using concepts that simplify the modeling and
-implementation of such algorithms might promote their use in research
-and in practice. 
+That is the case of Perl6
+\cite{Tang:2007:PRI:1190216.1190218}, a relatively new and decidedly
+non mainstream language (since it is not included in the top ten of
+any of the most popular languages rankings), with concurrent and functional
+features in order to develop parallel versions of EAs through
+concurrency. Perl 6 started as a redesign of the implementation of
+Perl, given its inadequacy to work correctly, among other things, with
+threads. Perl 6 has a three-tier architecture, including a virtual
+machine (either MoarVM, specifically designed for Perl 6, JVM or,
+lately, GraalVM \cite{wurthinger2013one}; a second level with a
+minimal bootstrapping language called NQP (Not Quite Perl), which
+allows for easy portability among different VMs, and finally a
+compiler, of which there is just one version right now, called Rakudo.
+This paper, as well as similar ones preceding it
+ \cite{DBLP:conf/gecco/CruzGGC13,Albert-Cruz2014169,Merelo:2018:MEA:3205651.3208317}, are
+motivated by the need to explore new language architectures that give
+you good insight on the nature of evolutionary algorithms, as well as
+the need to create fast implementations that can be run efficiently in
+current processor architectures.
 
-This research is intended to show some possible areas of improvement on architecture and engineering best practices for concurrent-functional paradigms, as was made for Object Oriented Programming languages \cite{EO:FEA2000}, by focusing on pGAs as a domain of application and describing how their principal traits can be modeled by means of concurrent-functional languages constructs. We are continuing the research reported in \cite{DBLP:conf/gecco/CruzGGC13,J.Albert-Cruz2013}.
-%other papers (hidden for double-blind review).
+This research is intended to show some possible areas of improvement
+on architecture and engineering best practices for concurrent-functional paradigms,
+as was made for Object Oriented Programming languages \cite{EO:FEA2000},
+by focusing on pEAs as a domain of application and describing how their principal
+traits can be modeled by means of concurrent-functional languages constructs.
+We are continuing the research reported in
+\cite{DBLP:conf/gecco/CruzGGC13,J.Albert-Cruz2013}. This paper is an
+extended version of \cite{Merelo:2018:MEA:3205651.3208317}, including
+new results with an updated version of the evolutionary algorithm library.
 
-The rest of the paper is organized as follows. Next section presents the state of the art in concurrent and functional programming language paradigms and its potential use for implementing pGAs. We present two different versions of a concurrent evolutionary algorithm in Section \ref{sec:impl}, to be followed by actual results in section \ref{sec:res}. Finally, we draw the conclusions and present future lines of work in section \ref{sec:conclusions}.
+Previously
+\cite{Merelo:2018:MEA:3205651.3208317,Garcia-Valdez:2018:MEA:3205651.3205719},
+we explored stateless evolutionary algorithm architectures. In this
+paper we will also see how to work with implicit parallelism at the
+instruction level, what kind of changes are needed to make it work and
+the speedups that can be achieved in that case.
+
+
+The rest of the paper is organized as follows. Next section presents the state
+of the art in concurrent and functional programming language  in the
+area of parallel evolutionary algorithms. We present two different versions
+of a concurrent evolutionary algorithm in Section \ref{sec:impl},
+to be followed by actual results in section \ref{sec:res}. Finally, we draw the
+conclusions and present future lines of work in section \ref{sec:conclusions}.
 
 \section{State of the Art}
 
-\noindent Developing correct software quickly and efficiently is a
-never ending goal in the software industry. Novel solutions that try
-to make a difference providing new abstraction tools outside the
-mainstream of programming languages have been proposed to pursue this
-goal; two of the most promising are the functional and the concurrent.
+\noindent Despite the emphasis on hardware-based techniques such as
+cloud computing or GPGPU, there are not many papers dealing with
+creating concurrent evolutionary algorithms that work in a single
+computing node.
 
 The concurrent programming paradigm (or concurrency oriented
 programming \cite{Armstrong2003}) is characterized by the presence of
 programming constructs for managing processes like first class
 objects. That is, with operators for acting upon them and the
 possibility of using them like parameters or function's result
-values. This simplifies the coding of concurrent algorithms due to the
+values. This changes the coding of concurrent algorithms due to the
 direct mapping between patterns of communications and processes with
-language expressions. 
+language expressions; on one hand it becomes simpler since the
+language provides an abstraction for communication, in the other hand
+it changes the paradigm for implementing algorithms, since these new
+communication constructs have to be taken into account.
 
-Concurrent programming is hard for many reasons, the communication/synchronization between processes is key in the design of such algorithms. One of the best efforts to formalize and simplify that is the Hoare’s {\em Communicating Sequential Processes} \cite{Hoare:1978:CSP:359576.359585}, this interaction description language is the theoretical support for many libraries and new programming languages.
+This design has to take into account the communication/synchronization
+between processes, which nowadays will be mainly threads. One of the best efforts to formalize
+and simplify that is the Hoare’s {\em Communicating Sequential
+  Processes} \cite{Hoare:1978:CSP:359576.359585}, this interaction
+description language is the theoretical support for many libraries and
+new programming languages. This kind of concurrent programs is based
+on {\em channels}, which are used to interchange message between the
+different processes or threads; messages can be interchanged
+asynchronously or synchronously. The Go language uses this kind of
+model, and Perl 6 will use, among others (like {\em promises} or
+low-level access to the creation of threads), this one.
+Another, different, approach is actor-based
+concurrency, \cite{schippers2009towards}. This actor model bans shared
+state, with different {\em actors} communicating through messages \cite{erb2012concurrent}. 
 
-When a concurrent programming language is used normally it has a
-particular way of handling units of execution, being independent of
-the operation system has several advantages: one program in those
-languages will work the same way on different operating systems. Also
-they can efficiently manage a lot of processes even on a
-mono-processor machine.
 
-
-Functional programming paradigm, despite its advantages, does not have
-many followers. Several years ago was used in Genetic Programming
+The fact that messages have to be processed without secondary effects
+and that actors do not share any kind of state makes concurrent
+programming specially fit for functional languages or languages with
+functional features; this has made this paradigm specially popular for
+late cloud computing implementations; however, its presence in the EA
+world is not so widespread, although some efforts have lately revived
+the interest for this kind of paradigm \cite{swan2015research}. Several years ago was used in Genetic Programming
 \cite{Briggs:2008:FGP:1375341.1375345,Huelsbergen:1996:TSE:1595536.1595579,walsh:1999:AFSFESIHLP}
-and recently in neuroevolution \cite{Sher2013} but in GA its presence
-is practically nonexistent \cite{Hawkins:2001:GFG:872017.872197}. 
+and recently in neuroevolution \cite{Sher2013} but in EA its presence,
+despite being scarce in the previous years
+\cite{Hawkins:2001:GFG:872017.872197}, has experimented a certain rise
+lately with papers such as \cite{valkov2018synthesis} which perform
+program synthesis using functional programming or
+\cite{barwell2017using} which uses the functional and parallel
+language Erlang for an evolutionary multi-agent system.
 
-This paradigm is characterized by the use of functions as first
-class concepts, and for discouraging the use of state changes, with
-functions mapping directly input to output without having any side effect. The
-latter is particularly useful for develop concurrent algorithms in
-which the communication by state changes is the origin of errors and
-complexity. Also, functional features like closures and first class
-functions in general, allow to express in one expression patterns like
-\emph{observer} which in language like Java need so many lines and
-files of source code.
-
-The field of programming languages research is very active in the
-Computer Science discipline. To find software construction tools with
-new and better means of algorithms expression is welcome. In the last
-few years the functional and concurrent paradigms have produced a rich
-mix in which concepts of the first one had been simplified by the use
-of the second ones. 
-
-Among this new generation, the languages Erlang and Scala have
+Among languages with functional features, the languages Erlang and Scala have
 embraced the actor model of concurrency and get excellent results in
 many application domains; Clojure is another one with concurrent
 features such as promises/futures, Software Transaction Memory and
-agents. All of these tools have processes like built-in types and
-scale beyond the restrictions of the number of OS-threads. On the
+agents; Kotlin \cite{simson2017open} has been recently used for
+implementing a functional evolutionary algorithm framework.  
+
+On the
 other hand, Perl 6 \cite{Tang:2007:PRI:1190215.1190218} uses different
 concurrency models, that go from implicit concurrency using a
 particular function that automatically parallelizes operations on
 iterable data structures, to explicit concurrency using threads. These
-both types of concurrency will be analyzed in this paper.
+both types of concurrency will be analyzed in this paper, which uses
+the {\tt Algorithm::Evolutionary::Simple} library for that language
+which was presented in the same conference \cite{DBLP:conf/gecco/GuervosV18}
 
 \section{Concurrent evolutionary algorithms and its implementation}
 \label{sec:impl}
@@ -231,160 +295,209 @@ architectures, which basically differ in the granularity with which
 they perform the evolutionary algorithm.
 
 %
-\begin{figure*}[t!bp]
-\includegraphics[width=0.95\textwidth]{channels-individual.png}
-\caption{Channels and functions used in the individual-level concurrency version of the algorithm. }
-\label{fig:indi}
-\end{figure*}
-%
-\begin{figure*}[t!bp]
-\includegraphics[width=0.95\textwidth]{population-channel.png}
-\caption{Channel and functions used in the population-level concurrency version of the algorithm. }
-\label{fig:pop}
-\end{figure*}
-%
-\subsection{Individual-level concurrency}
-\label{ss:indi}
+% \begin{figure*}[h!tbp]
+% \includegraphics[width=0.95\textwidth]{channels-individual.png}
+% \caption{Channels and functions used in the individual-level concurrency version of the algorithm. }
+% \label{fig:indi}
+% \end{figure*}
 
-In this version of the algorithm, all functions operate on single individuals or sets of them. We are going to use three different channels:\begin{itemize}
-\item Channel {\sf individual}, which contains chromosomes without a fitness
-  function. A subchannel of this channel takes the chromosomes in groups.
-\item Channel {\sf evaluated}, which contains chromosomes paired with
-  their fitness function. This channel receives individuals one by
-  one, but emits them in groups of three.
-\item Channel {\sf output}, which is used for logging what is
-  happening in the other two channels and printing output at the end
-  of the experiment.
-\end{itemize}
+% \subsection{Individual-level concurrency}
+% \label{ss:indi}
 
-There are two functions feeding these channels. \begin{itemize}
-  
-\item {\sf Evaluator} reacts to the {\sf individual} channel, picking and evaluating a single individual and emits it to the {\sf evaluated} as
-  well as {\sf output} channel as an object that contains the original chromosome and the computed fitness. 
-\item {\sf Reproducer} picks three individuals from the {\sf
-    evaluated} channel, generates a new couple using crossover, and
-  emits it to the {\sf individual} channel. This function also acts as
-  selector, and in fact it is similar to 3 tournament, since it takes three individuals and returns only two of them to the channel, along with the two individuals that have been generated via crossover and mutation. 
-\item {\sf Diversifier} is a re-broadcasting of the {\sf individual
-    channel}, picks a group of individuals and shuffles it, putting it
-  back into the same channel, giving them a different order in the
-  buffer.
-\end{itemize}
+% In this version of the algorithm, all functions operate on single individuals or sets of them. We are going to use three different channels:\begin{itemize}
+% \item Channel {\sf individual}, which contains chromosomes without a fitness
+%   function. A subchannel of this channel takes the chromosomes in groups.
+% \item Channel {\sf evaluated}, which contains chromosomes paired with
+%   their fitness function. This channel receives individuals one by
+%   one, but emits them in groups of three.
+% \item Channel {\sf output}, which is used for logging what is
+%   happening in the other two channels and printing output at the end
+%   of the experiment.
+% \end{itemize}
 
-How channels and functions relate to and communicate with each other is represented in Figure \ref{fig:indi}.  The functions described above rebroadcast the values they read from the channel when needed to other channels so that all
-channels are kept fed and a deadlock situation is not produced. This
-could happen, for instance, if the {\sf reproducer channel}, which
-takes individuals in pairs, is only able to read a single one; since it is waiting for
-a second individual it is not producing new ones and the algorithm
-will stall. This could be fixed in a different way by changing from a reactive architecture to a {\em polling} architecture, but that kind of architecture also introduces overhead by polling when it is not needed. You have to balance when designing these types of algorithms, anyway; polling is another possibility, but one we are not exploring in this paper. 
+% There are two functions feeding these channels. \begin{itemize}
 
-The concurrency of this situation implies that we can run as many
-copies as available of every one of them. Also that there is an
-initial process where you generate the initial population, a series of
-individuals which must be even, and bigger than the number of
-individuals used in the diversifier. This is equivalent to an initial
-population, although in this case there is no real {\em population},
-since individuals are considered in groups of three. 
+% \item {\sf Evaluator} reacts to the {\sf individual} channel, picking and evaluating a single individual and emits it to the {\sf evaluated} as
+%   well as {\sf output} channel as an object that contains the original chromosome and the computed fitness.
+% \item {\sf Reproducer} picks three individuals from the {\sf
+%     evaluated} channel, generates a new couple using crossover, and
+%   emits it to the {\sf individual} channel. This function also acts as
+%   selector, and in fact it is similar to 3 tournament, since it takes three individuals and returns only two of them to the channel, along with the two individuals that have been generated via crossover and mutation.
+% \item {\sf Diversifier} is a re-broadcasting of the {\sf individual
+%     channel}, picks a group of individuals and shuffles it, putting it
+%   back into the same channel, giving them a different order in the
+%   buffer.
+% \end{itemize}
 
-Depending on the overhead emission and reception adds, it is possible
-that the performance of this channel is not the adequate one, even if
-theoretically it is sound. That is why we have also proposed next a
-coarse-grained version where the function process whole populations.
+% How channels and functions relate to and communicate with each other is represented in Figure \ref{fig:indi}.  The functions described above rebroadcast the values they read from the channel when needed to other channels so that all
+% channels are kept fed and a deadlock situation is not produced. This
+% could happen, for instance, if the {\sf reproducer channel}, which
+% takes individuals in pairs, is only able to read a single one; since it is waiting for
+% a second individual it is not producing new ones and the algorithm
+% will stall. This could be fixed in a different way by changing from a reactive architecture to a {\em polling} architecture, but that kind of architecture also introduces overhead by polling when it is not needed. You have to balance when designing these types of algorithms, anyway; polling is another possibility, but one we are not exploring in this paper.
 
-\subsection{Population-level concurrency}
+% The concurrency of this situation implies that we can run as many
+% copies as available of every one of them. Also that there is an
+% initial process where you generate the initial population, a series of
+% individuals which must be even, and bigger than the number of
+% individuals used in the diversifier. This is equivalent to an initial
+% population, although in this case there is no real {\em population},
+% since individuals are considered in groups of several, depending on
+% the tournament size.
 
-In this case, the algorithm uses a single channel that emits and receives
-populations. However, this channel is also re-broadcast as another channel
-that takes the population in pairs. Having a single channel, even is with
-different threads, will make several threads concurrently process
-populations that will evolve in complete independence. This is why
-there are two functions: \begin{itemize}
-\item {\sf Singles} takes single populations and evolves them for a
-  number of generations. It stops if it finds the solution, and closes
-  the channel at the same time.
-\item {\sf Pairs} reads pairs of populations from the sub-channel and
-  mixes them, creating a new population with the best members of both
-  populations. This {\em mixer} is equivalent to a process of
-  migration that takes members from one population to another. Since
-  this function takes two elements from the channel, it must leave two
-  elements in the channel too. What it does is it emits back a
-  randomly chosen population in the pair. 
-\end{itemize}
+% Depending on the overhead communication adds, it is possible
+% that the performance of this version of the algorithm is not the adequate one, even if
+% theoretically it is sound. That is why we have also proposed next a
+% coarse-grained version where the function process whole populations.
 
-Additionally, there must be a function, which can be concurrent, to
-create the initial population. The process of migration performed by
-the mixer is needed to overcome the {\em stateless}
-nature of the concurrent process. The state is totally contained in
-the population; the mixer respects this state of affairs by using only
-this information to perform the evolutionary algorithm. 
+% \subsection{Population-level concurrency}
+% %
+% % \begin{figure*}[h!tbp]
+% % \includegraphics[width=0.95\textwidth]{population-channel.png}
+% % \caption{Channel and functions used in the population-level concurrency version of the algorithm. }
+% % \label{fig:pop}
+% % \end{figure*}
+% %
+% In this case, the algorithm uses a single channel that emits and
+% receives, as messages, whole
+% populations. However, this channel is also re-broadcast as another channel
+% that takes the population in pairs. Having a single channel, even is with
+% different threads, will make several threads concurrently process
+% populations that will evolve in complete independence. This is why
+% there are two functions: \begin{itemize}
+% \item {\sf Singles} takes single populations and evolves them for a
+%   number of generations. It stops if it finds the solution, and closes
+%   the channel at the same time.
+% \item {\sf Pairs} reads pairs of populations from the sub-channel and
+%   mixes them, creating a new population with the best members of both
+%   populations. This {\em mixer} is equivalent to a process of
+%   migration that takes members from one population to another. Since
+%   this function takes two elements from the channel, it must leave two
+%   elements in the channel too. What it does is it emits back a
+%   randomly chosen population in the pair.
+% \end{itemize}
 
-This algorithm has several parameters to tune:\begin{itemize}
-\item {\bf Number of generations} that every function runs. This
-  parameter is equivalent to the time needed to perform some kind of
-  migration, since it is the time after which populations are sent
-  back to the channel for mixing and further evolution.
-\item {\bf initial populations} The channel must never be empty, so
-  some initial random populations must be generated, always in pairs.
-\end{itemize}
+% Additionally, there must be a function, which can be concurrent, to
+% create the initial population. The process of migration performed by
+% the mixer is needed to overcome the {\em stateless}
+% nature of the concurrent process. The state is totally contained in
+% the population; the mixer respects this state of affairs by using only
+% this information to perform the evolutionary algorithm.
 
-\subsection{Notes on implementation using Perl 6}
+% This algorithm has several parameters to tune:\begin{itemize}
+% \item {\bf Number of generations} that every function runs. This
+%   parameter is equivalent to the time needed to perform some kind of
+%   migration, since it is the time after which populations are sent
+%   back to the channel for mixing and further evolution.
+% \item {\bf initial populations} The channel must never be empty, so
+%   some initial random populations must be generated, always in pairs.
+% \end{itemize}
 
-Perl 6 \cite{Tang:2007:PRI:1190215.1190218} has been chosen to perform
-the implementation of these two different versions of a concurrent
-evolutionary algorithm. This choice has been due mainly to the
-existence of an open source evolutionary algorithm library, recently
-released by the authors and called {\tt
-  Algorithm::Evolutionary::Simple}. This library, released to the
-repository of Perl 6 modules, called CPAN, includes
-functions for the implementation of a very simple evolutionary
-algorithm for optimizing OneMax, Royal Road or any other benchmark
-function.
+% \subsection{Notes on implementation using Perl 6}
 
-Perl 6 \cite{lenzperl} is, despite its name, a language that is
-completely different from Perl, designed for scratch to implement most
-modern language features: meta-object protocols, concurrency, and
-functional programming. It does not have a formal grammar, but is
-rather defined by the tests a compiler or interpreter must pass in
-order to be called ``Perl 6''. 
-Current implementation consists of a virtual machine with just in
-time capabilities, called MoarVM, and a compiler (Rakudo) which is written mostly in Perl 6 itself, so that it can
-be easily ported from one virtual machine to others; the rest is written in a simple language called NQP (Not Quite Perl). All together they compose the so-called {\em Rakudo
-  star} distribution, a {\em stable} distribution of compiler +
-virtual machine that is released every 4 months from GitHub and to
-package repositories. Right now the Java Virtual Machine is a few features behind MoarVM, and there is a new virtual machine in the works which is based on JavaScript.
+% Perl 6 \cite{Tang:2007:PRI:1190215.1190218} has been chosen to perform
+% the implementation of these two different versions of a concurrent
+% evolutionary algorithm. This choice has been due mainly to the
+% existence of an open source evolutionary algorithm library, recently
+% released by the authors and called {\tt
+%   Algorithm::Evolutionary::Simple}. This library, released to the
+% repository of Perl 6 modules, called CPAN, includes
+% functions for the implementation of a very simple evolutionary
+% algorithm for optimizing onemax, Royal Road or any other benchmark
+% function.
 
-The advantage of using Perl 6 for this work is that it combines the expressivity of
-an interpreted language with the power of concurrency. Not very many
-languages nowadays include concurrency as a base feature; Go, Scala
-and Erlang are some of them. % add references - JJ
-The concurrency in Go is done in a
-similar way to Perl 6, using channels, but Go is a compiled,
-non-functional language. % What about the others? - JJ
+% Perl 6 \cite{lenzperl} is, despite its name, a language that is
+% completely different from Perl, designed for scratch to implement most
+% modern language features: meta-object protocols, concurrency, and
+% functional programming. It does not have a formal grammar, but is
+% rather defined by the tests a compiler or interpreter must pass in
+% order to be called ``Perl 6''.
+% Current implementation consists of a virtual machine with just in
+% time capabilities, called MoarVM, and a compiler (Rakudo) which is written mostly in Perl 6 itself, so that it can
+% be easily ported from one virtual machine to others; the rest is written in a simple language called NQP (Not Quite Perl). All together they compose the so-called {\em Rakudo
+%   star} distribution, a {\em stable} distribution of compiler +
+% virtual machine that is released every 4 months from GitHub and to
+% package repositories. Right now the Java Virtual Machine is a few features behind MoarVM, and there is a new virtual machine in the works which is based on JavaScript.
 
-The main disadvantage of Perl 6 is currently its raw performance, which is much
-slower than Go or Java, although in general, similar although slower than
-other interpreted languages such as Python or Perl. Language
-performance is not an static feature, and it usually improves with
-time; in a separate paper, we have proved how speed has increased by
-orders of magnitude since it was released a few years ago. % Cite the other paper - JJ
+% The advantage of using Perl 6 for this work is that it combines the expressivity of
+% an interpreted language with the power of concurrency. Not very many
+% languages nowadays include concurrency as a base feature; Go, Scala
+% and Erlang are some of them. % add references - JJ
+% The concurrency in Go is done in a
+% similar way to Perl 6, using channels, but Go is a compiled,
+% non-functional language. % What about the others? - JJ
 
-This paper, however, is focused on the algorithmic performance more
-than the raw performance, so suffice it to say that Perl 6 performance
-was adequate for running these experiments in a reasonable amount of
-time.
+% The main disadvantage of Perl 6 is currently its raw performance, which is much
+% slower than Go or Java, although in general, similar although slower than
+% other interpreted languages such as Python or Perl; it has also
+% improved a lot in the last versions \cite{DBLP:conf/gecco/GuervosV18}. Language
+% performance is not an static feature, and it usually improves with
+% time; in a separate paper, we have proved how speed has increased by
+% orders of magnitude since it was released a few years ago. % Cite the other paper - JJ
+
+% This paper, however, is focused on the algorithmic performance more
+% than the raw performance, so suffice it to say that Perl 6 performance
+% was adequate for running these experiments in a reasonable amount of
+% time.
 
 The module used, as well as the code for the experiments, is available
-under a free license. 
+under a free license.
 
 \section{Experimental setup and results}
 \label{sec:res}
+
+The first experiments we have performed for this paper included using
+implicit autothreading, in the shape of the method called {\tt race}
+or {\tt hyper}. These methods auto-thread the processing of arrays or
+list, disregarding the order in the first case, using it in the second
+case. In order to check this we implemented the p-peaks function
+\cite{kennedy1998matching}, which was considered more adequate for
+this task since it is, at the same time, deceptive from the point of
+view of the evolutionary algorithm and computing-intensive, involving
+computing the distance to a number of generated binary strings, which
+in this case were 100.
+
+In order to do this implicitly parallel version, several changes had
+to be made to the function that evaluates the whole
+population: \begin{itemize}
+\item First, the cache had to be turned off. We were using a cache to
+  keep all values that were already computed, and we had to stop using
+  it. Since it is autothreaded, trying to store or retrieve from the
+  cache simultaneously could result in deadlocks or crashes. 
+\item Do all the computation in a functional way, without side
+  effects. The auto-threaded code must take values, return values,
+  without changing any external variable on the fly. All values are
+  then computed and assigned to the data structure that holds them.
+\end{itemize}
+
+Perl 6, by default, uses 4 threads for auto-threading. We designed
+population evaluation so that it was autothreaded, and did some
+runtime tests. Without changing the algorithm, this resulted in an
+almost 4x speedup of the original code. 
+
+This implies that using implicitly parallel facilities might allow,
+without much changes to the underlying algorithm, to use
+multithreading and achieve speedups, as already observed in
+\cite{DBLP:conf/gecco/GuervosV18}. However, it is essential that what
+is being parallelized is a substantial amount of work. Using just
+MaxOnes, as in the above mentioned paper, will not offer any
+substantial speedups and might even result in performance taking a
+hit.
+
+
+However, we were more interested in creating explicit concurrent
+version of the evolutionary algorithm, and do a set of experiments to
+make them work properly. In the next set of experiments we will
+concentrate not so much in runtime performance, but on algorithmic
+performance, that is, the number of evaluations needed to find the
+solution.
 %
 \begin{figure*}[h!tb]
   \centering
 <<results-mo, cache=FALSE,echo=FALSE>>=
 ggplot(evaluations,aes(x=bits,y=evaluations,group=bits))+geom_boxplot()+ scale_y_log10()+theme_tufte()+labs(x="Bits",y="Evaluations",title="Individually concurrent evolutionary algorithm")
-@ 
-\caption{Boxplot of the number of evaluations needed for different number of bits in the maxones problem. Please note that axes $x$ and $y$ both have a logarithmic scale.}
+@
+\caption{Boxplot of the number of evaluations needed for different number of bits in the MaxOnes problem. Please note that axes $x$ and $y$ both have a logarithmic scale.}
 \label{fig:evals:mo}
 \end{figure*}
 %
@@ -395,30 +508,30 @@ algorithm, with no mutation, in order to find out what's the correct
 population for every problem size \cite{lobo2005review}. This method
 sizes populations looking for the minimal size that achieves a 95\%
 success rate on a particular problem and problem size; in this case,
-size 512 was the ideal for the maxones problem with size 64. This size
+size 512 was the ideal for the MaxOnes problem with size 64. This size
 was used as a base for the rest of the problem sizes; since the real
 evolutionary algorithm actually uses mutation, the population was
 halved for the actual experiments. This population size is more
 dependent on the problem itself than on the particular implementation,
-that is why we use it for all implementations. 
+that is why we use it for all implementations.
 %
 \begin{figure}[h!tb]
   \centering
 <<population-initial, cache=FALSE,echo=FALSE>>=
 population.initial <- data.frame(Number=population.v2$V1,Evaluations=population.v2$value)
 ggplot(population.initial,aes(x=Number,y=Evaluations,group=Number))+geom_boxplot()+theme_tufte()+labs(x="Number of initial populations",y="Evaluations",title="Comparing population-level concurrent EA for different number of initial populations")+ scale_y_log10()
-@ 
-\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit OneMax problem using the population-level concurrent algorithm with different number of initial populations.}
+@
+\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit onemax problem using the population-level concurrent algorithm with different number of initial populations.}
 \label{fig:pop:initial}
 \end{figure}
 %
-% 
+%
 \begin{figure}[h!tb]
   \centering
 <<comparison-mo, cache=FALSE,echo=FALSE>>=
-ggplot(comparison.64,aes(x=algorithm,y=evaluations,group=algorithm))+geom_boxplot()+theme_tufte()+labs(x="Algorithm",y="Evaluations",title="Comparing algorithms for the 64 bit OneMax problem")+ scale_y_log10()
-@ 
-\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit OneMax problem in the individually concurrent and canonical EA version.}
+ggplot(comparison.64,aes(x=algorithm,y=evaluations,group=algorithm))+geom_boxplot()+theme_tufte()+labs(x="Algorithm",y="Evaluations",title="Comparing algorithms for the 64 bit onemax problem")+ scale_y_log10()
+@
+\caption{Boxplot comparing the number of evaluations needed for solving the 64 bit onemax problem in the individually concurrent and canonical EA version.}
 \label{fig:comparison}
 \end{figure}
 %
@@ -431,24 +544,37 @@ sizes. We compared mainly the number of evaluations needed, since that
 is the main measure of the quality of the algorithm.
 
 We show in Figure \ref{fig:evals:mo} the logarithmic chart  of the
-number of evaluations that are reached for different, logarithmically
+number of evaluations needed to find the solution for different, logarithmically
 growing, chromosome sizes using the individually concurrent
 evolutionary algorithm. There is a logical increase in the number of
 evaluations needed, but the fact that it is a low number and its
 scaling prove that this simple concurrent implementation is indeed an
 evolutionary algorithm, and does not get stuck in diversity traps that
 take it to local minimum. The number of evaluations is, in fact, quite
-stable. 
+stable.
 
 We did the same for the population-level concurrent algorithm;
-however, since this one has got parameters to tune, we had to find a good result. In order to do that, we tested different number of initial populations placed in the channel, since this seems to be the critical parameter, more than the number of generations until mixing. The results are shown in Figure \ref{fig:pop:initial}. The difference between using 4 and 6 initial populations is virtually none, but there is a slight advantage if you use only 2 initial populations to kickstart the channel. Please bear in mind that, in this case, the concept of {\em population} is slightly different from the one used in island EAs. While in the latter the population does not move from the island, in this case populations are read from channels and acted upon, and in principle there could be as many initial or unread populations as wanted or needed; every function in every thread will process a single population nonetheless. 
+however, since this one has got parameters to tune, we had to find a
+good result. In order to do that, we tested different number of
+initial populations placed in the channel, since this seems to be the
+critical parameter, more than the number of generations until
+mixing. The results are shown in Figure \ref{fig:pop:initial}. The
+difference between using 4 and 6 initial populations is virtually
+none, but there is a slight advantage if you use only 2 initial
+populations to kickstart the channel. Please bear in mind that, in
+this case, the concept of {\em population} is slightly different from
+the one used in island EAs. While in the latter the population does
+not move from the island, in this case populations are read from
+channels and acted upon, and in principle there could be as many
+initial or unread populations as wanted or needed; every function in
+every thread will process a single population nonetheless. 
 
 We can now compare these two algorithms with the baseline EA. This is
 a canonical evolutionary algorithm using bitflip mutation and
 two-point crossover, using roulette wheel as a selection method. It
 has, as the rest of the implementations of the algorithms, been
 implemented using {\tt Algorithm::Evolutionary::Simple}, the free
-software module in Perl 6. 
+software module in Perl 6.
 
 The comparison is shown in Figure
 \ref{fig:comparison}, which shows, in a logarithmic $y$ scale, a
@@ -459,22 +585,33 @@ two, achieving the same result using many less evaluations, almost one
 order of magnitude less. In fact, both concurrent algorithms are
 better than the baseline, and please note this measures the number of
 evaluations, equivalent to the algorithmic complexity, and not
-time. This figure is the base to reach our conclusions.  
+time. This figure is the base to reach our conclusions.
 
 \section{Conclusions and discussion}
 \label{sec:conclusions}
 
 It is natural to take advantage of the multi-threading and multi-process
-capabilities of modern architectures to make evolutionary or other
-population-based algorithms faster; that can be done in a very
+capabilities of modern hardware architectures to make evolutionary or other
+population-based algorithms run faster by using all CPUs and threads
+at the same time; that can be done in a very
 straightforward way by parallelizing the evolutionary algorithm using
 the many available models, such as island model; however, it is
 possible that adapting the algorithm itself to the architecture makes
-its performance better. 
+its performance better, by actually adapting the resources consumed to
+the resources used, instead of allocating them in advance as it is
+done in island architectures.
 
-However, this change implies also a different vision of the algorithm,
+The first exploration of the facilities for concurrent programming
+Perl 6 uses has been done through the auto-threading mechanism that
+allows the parallel execution of code on arrays or lists. After making
+small changes, this resulted in a speedup of the program in a number
+that is compatible with the number of threads used by default, four.
+
+However, a change to a concurrent architecture implies looking at an
+algorithm in a different, non sequential way, 
 that is why the first thing that has to be evaluated is the actual
-number of evaluations that need to be done to solve the problem. This
+number of evaluations that need to be done to solve the problem, since
+the new implementation is not functionally equivalent to the old one. This
 is what we have done in this paper. We have proposed two different
 concurrent implementations of an evolutionary algorithms with different
 {\em grain}: a {\em fine-grained} one that acts at the individual
@@ -485,7 +622,7 @@ size; besides, when comparing it with the population-level concurrent
 EA and the canonical and sequential evolutionary algorithm, it obtains
 a much better performance, being able to obtain the solution with a
 much lower evaluation budget. Second best is the population-level
-concurrent algorithm, to be followed by the baseline canonical GA,
+concurrent algorithm, to be followed by the baseline canonical EA,
 which obtains the worse result. This proves that, even from the purely
 algorithmic point of view, concurrent evolutionary algorithms are
 better than sequential algorithms. If we consider time, the difference
@@ -493,27 +630,29 @@ increases, since the only sequential part of the concurrent algorithms
 is reading from the channels, but once reading has been done the rest
 of the operations can be performed concurrently, not to mention every
 function can have as many copies as needed running in different
-threads. 
+threads.
 
 These results are not so much inherent to the concurrency itself as
 dependent on the selection operators that have been included in the
 concurrent version of the algorithms. The selection pressure of the
-canonical algorithm is relatively low, depending on roulette wheel. The
+canonical algorithm is relatively low, depending on the roulette wheel
+selection algorithm, as opposed to the more greedy operation of the
+individual-level algorith, which uses tournament selection. The
 population-level concurrent algorithm eliminates half the population
 with the worst fitness, although every generation it is running a
-canonical GA identical to the baseline; however, this exerts a high
+canonical EA identical to the baseline; however, this exerts a high
 selective pressure on the population which, combined with the
 increased diversity of running two populations in parallel, results in
-better results. Same happens with the individual-level concurrent EA:
+better performance. Same happens with the individual-level concurrent EA:
 the worst of three is always eliminated, which exerts a big pressure
-on the population, which thus is able to find the solution much
+on the population, which is thus able to find the solution much
 faster. Nothing prevents us from using these same mechanisms in an
 evolutionary algorithm, which would then be functionally equivalent to
 these concurrent algorithms, but we wanted to compare a canonical EA
 to {\em canonical} concurrent evolutionary algorithms, at the same
 time we compare different versions of them; in this sense, it is
 better to use this individual-level concurrent algorithm in future
-versions of the evolutionary algorithm library. 
+versions of the evolutionary algorithm library.
 
 The main conclusion of this paper is that evolutionary algorithms can
 benefit from concurrent implementations, and that these should be as
@@ -523,7 +662,7 @@ concurrent capabilities of Perl 6 to perform multi-threaded evaluation
 or any other part of the algorithm, which would delegate the use of
 the threading facilities to the compiler and virtual machine. That
 will have no implications on the number of evaluations, but will help
-make the overall application faster. 
+make the overall application faster.
 
 Of course, time comparisons will also have to be made, as well as a
 more thorough exploration of the parameter space of the
@@ -535,23 +674,37 @@ pursue; since our architecture is using single channels, this might
 eventually be a bottleneck, and will prevent scaling to an indefinite
 number of threads. However, that number might be higher than the
 available number of threads in a desktop processor, so it has to be
-measured in practice. 
+measured in practice.
+
+This paper has been intended mainly as a proof of concept, and thus
+does not really focuses on creating a scalable architecture for
+concurrent evolutionary algorithms. Preliminary results with the
+individual-level concurrency indicate that a basic redesign is
+probably needed to achieve good scaling performance. One of the
+problems with this architecture is that actually every thread is doing
+much less work than communication; since the application is
+communication-bound it will get worse as the number of threads
+increases. While keeping functional equivalence, it is probably better
+to work with bigger batch sizes instead of working with a single
+individual. 
 
 Finally, we would like to remark that this paper is part of the open
 science effort by the authors. It is hosted in GitHub, and the paper
 repository hosts the data and scripts used to process them, which are
-in fact embedded in this paper source code using Knitr \cite{xie2013knitr}. 
+in fact embedded in this paper source code using Knitr \cite{xie2013knitr}.
 
-\begin{acks}
+\section{Acknowledgements}
 
   This paper has been supported in part by
 projects TIN2014-56494-C4-3-P s (Spanish Ministry of Economy and
-Competitiveness) and DeepBio (TIN2017-85727-C4-2-P).
+Competitiveness) and DeepBio (TIN2017-85727-C4-2-P). I would like to
+express my gratefulness to the users in the \#perl6 IRC channel,
+specially Elizabeth Mattijsen, Timo Paulsen and Zoffix Znet, who
+helped me with the adventure of programming efficient concurrent
+evolutionary algorithms. 
 
-\end{acks}
 
-
-\bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{splncs04}
 \bibliography{geneura,concurrent,perl6}
 
 \end{document}
