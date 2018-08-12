@@ -33,13 +33,13 @@
           <section>
             <h1>Munich, 2002</h1>
             <a data-flickr-embed="true"
-          href="https://www.flickr.com/photos/atalaya/83947979/in/photolist-dePPZm-89cTZK-89cU6P-7Hr85m-7Hr8hf-7HncLk-7Hr8Ks-7HndcK-7HndpT-6LZ9qD-6LZbuK-6LZczM-6M4p3h-6LZ3qz-6M4dQS-6vj2xY-6hx8Ff-6hx8Em-5vZ8ef-5vUJQH-5t9A4J-5t5b5Z-58p1qK-2KDkKR-qVLyY-hp4YA-eGbom-aYJrB-8qfNZ-8qfNX-8qfNW-8qfNY-nKTT-nKTP-nLYT-nM4i-nM4t-nM3n-nM45-nLYB-nM57-nM1H-nM4A-nM3d-nM3C-nM2b-nLYx-nM2v-nM21-nM2M"
-          title="Algoritmos evolutivos en Perl"><img
-          src="https://farm1.staticflickr.com/43/83947979_0dc8cf0d66_o.jpg"
-          width="640" height="480" alt="Algoritmos evolutivos en
-          Perl"></a><script async
-          src="//embedr.flickr.com/assets/client-code.js"
-                            charset="utf-8"></script>
+               href="https://www.flickr.com/photos/atalaya/83947979/"
+               title="Algoritmos evolutivos en Perl"><img
+              src="https://farm1.staticflickr.com/43/83947979_0dc8cf0d66_o.jpg"
+              width="640" height="480" alt="Algoritmos evolutivos en
+              Perl"></a><script async
+                                src="//embedr.flickr.com/assets/client-code.js"
+                                charset="utf-8"></script>
 
             <aside class='notes'>My very first EA conference, I was
               talking already about evolutionary algorithms.</aside>
@@ -54,14 +54,42 @@
           </section>
         </section>
 
+        <section
+          data-background='https://farm6.staticflickr.com/5078/14026625866_36f153f8a3_k_d.jpg'>
+          <section>
+            <h1>Perl 6 is a high-level</h1>
+          </section>
+
+          <section>
+	    <h1>Concurrent</h1>
+          </section>
+          <section>
+          <h1>Functional</h1>
+	  <h1 class='fragment'>JIT compiled language</h1>
+          </section>
+	</section>
+
+        <!-- Evolutionary algorithms -->
+
+        <section>
+          <section><h1>進化</h1>
+            <aside class='notes'>Shinka, with two ideograms meaning
+          advancing or progressing and changing or influencing. </aside>
+          </section>
+          
+          <section><h1><strong>Evolutionary algorithms</strong></h1>
+        </section>
 	<!-- Concurrency -->
 	<section>
-	  <section><h1><strong>共に</strong>: concurrency: flowing together</h1>
+	  <section data-background='https://farm2.staticflickr.com/1825/43420779171_eff116fc53_k_d.jpg'><h1><strong>共に</strong>: concurrency: flowing together</h1>
 	    <aside class='notes'>Tomoni: flowing together. It's a concept in martial arts</aside>
 	  </section>
+          
 	  <section><h1>Communicating sequential processes</h1>
 	    <h1 class='fragment'><strong>Stateless</strong> process writes to/read from <strong>channels</strong></h1> 
 	  </section>
+
+          
 	  <section><h1><strong>Stateless</strong>⇒ 1 to 1 mapping input/output</h1>
 	    <h2 class='fragment'>For <strong>all</strong> functions.</h2>
 	  </section>
@@ -80,11 +108,8 @@
 
 	<!-- Perl 6 -->
 	<section>
-	  <section><h1>Perl 6 is a high-level</h1>
-	    <h1 class='fragment'>Multiparadigm</h1>
-	    <h1 class='fragment'>JIT compiled language</h1> 
-	  </section>
-	  <section><h1>Offers <strong>channel</strong> based concurrency</h1>
+
+	  <section><h1>Perl 6 offers <strong>channel</strong> based concurrency</h1>
 	  </section>
 	  <section><pre><code>my Channel $c .= new;
 my Channel $c2 = $c.Supply.batch( elems => 2).Channel;
@@ -130,6 +155,14 @@ await $more-work;
   <h1>Individual-level concurrency <strong>rocks</strong>!</h1>
   <h2 class='fragment'>Interaction concurrency ⬄ EA</h2>
   <h2 class='fragment'>Stateless needs meaningful dataflows</h2>
+</section>
+
+<section><h2>Credits</h2>
+  <ul class='credits'>
+    <li><a
+  href='https://www.flickr.com/photos/wendyga/14026625866/in/photolist-fWepXF-fWeqFK-fWert6-LSPg6J-nnu8c1-LdrLZb-KQ3Gzb-3hGcZ-LdrM1y-mn7yH2-kRZF2-KiVM7p-KQ3Gy9-L71Yp7-L71Yuh-L6bYg7-L6bYDS-LcAepL-L6bYud-SKHb9s'>Camelia
+      by Wendy van Dijk</a></li>
+  </ul>
 </section>
       </div>
     </div>
