@@ -245,7 +245,7 @@ multi sub evaluate( :@population,
 	<section>
 
 	  <section><h1>How do we do that</h1>
-	    <h2 class='fragment'>With Perl&nbsp;6</h2>
+	    <h2 class='fragment'>With Perl&nbsp;6?</h2>
 	  </section>
 	  
 	  <section><h1>Perl 6 offers <strong>channel</strong> based concurrency</h1>
@@ -274,20 +274,72 @@ await $more-work;
 <!-- Implementing a concurrent evolutionary algorithm in Perl 6 -->
 <section>
   <section>
-    <h1>Challenge: design a <strong>stateless</strong> EA on this architecture</h1>
+    <h1>Challenge: design a <strong>stateless</strong> EA with <strong>channels</strong></h1>
+  </section>
+
+  <section><h1>Connecting to channel evaluation</h1>
+    <pre><code> my @evaluation = ( start react whenever $raw -> $one {
+	my $with-fitness = $one => max-ones($one);
+	$output.send( $with-fitness );
+	$evaluated.send( $with-fitness); # Check for solution and stuff
+    } ) for ^$threads;
+    </code></pre>
+  </section>
+
+  <section><h1>Connecting to channel reproduction</h1>
+    <pre><code>    my $selection = ( start react whenever $channel-three -> @tournament {
+	my @ranked = @tournament.sort( { .values } ).reverse;
+	$evaluated.send( $_ ) for @ranked[0..1];
+	my @crossed = crossover(@ranked[0].key,@ranked[1].key);
+	$raw.send( $_.list ) for @crossed.map: { mutation($^þ)};
+    } ) for ^($threads/2);
+    </code></pre>
+    <aside class='notes'>You probably need less threads making the
+    reproduction than doing the evaluation, which should be done as
+      fast as possible.</aside>
+  </section>
+
+  <section><h1>Other levels are possible</h1>
+    <pre><code>my $single = ( start react whenever $channel-one -> $crew {
+	# Get values  and ...
+	while $count++ < $generations && best-fitness($population) < $length {
+	    LAST {
+		if best-fitness($population) >= $length {
+		    $channel-one.close;
+		} else {
+		    $to-mix.send( $population );
+		}
+	    };
+            # Forward one generation
+	}
+    } ) for ^$threads; </code></pre>
+			 </section>
+
+  <section><h1>Diversity is good</h1>
+<pre><code>    my $pairs = start react whenever $mixer -> @pair {
+	$to-mix.send( @pair.pick ); # To avoid getting it hanged up
+	$channel-one.send(mix( @pair[0], @pair[1], $population-size ));
+	  };</code></pre>
+    <aside class='notes'>This takes it apart from a purely sequential
+      system; mixing actually is where concurrency is acting</aside>
   </section>
 </section>
 
 <!-- Experimental results -->
 <section>
-  <section data-background='img/channels-individual.png'></section>
-  <section data-background='img/individual-concurrent-ea.png'></section>
-</section>
+  <section>
+    <h1>Does it work?</h1>
+    <h1 class='fragment'>Better?</h1>
+  </section>
 
-<section>
-	<section data-background='img/population-channel.png'></section>
-	<section data-background='img/population-initial.png'></section>
-	<section data-background='img/comparison-mo.png'></section>
+  <section><h1>It does, in general</h1>
+    <h1 class='fragment'>It more or less <strong>scales</strong></h1>
+  </section>
+
+  <section><h1>Also</h1>
+    <h1 class='fragment'>Autothreading is great.</h1>
+    <aside class='notes'>We still need to test with scales...</aside>
+  </section>
 </section>
 
 <section>
