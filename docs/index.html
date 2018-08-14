@@ -88,9 +88,43 @@
               advancing or progressing and changing or influencing. </aside>
           </section>
           
-          <section><h1><strong>Evolutionary algorithms</strong></h1>
-          </section>
-	</section>
+          <section><h2>Evolutionary algorithms evolve <strong>codified</strong> solutions</h2>
+	    <pre><code>sub random-chromosome( UInt $length --> List(Seq) )
+  is export {
+    return Bool.pick() xx $length;
+}
+</code></pre>
+
+<aside class='notes'>Chromosomes are simply lists of random Bools, or bits.</aside>
+</section>
+
+<section><h1> ... in <strong>populations</strong> ... </h1>
+<pre><code>sub initialize( UInt :$size,
+		UInt :$genome-length --> Array ) is export {
+    my @initial-population;
+    for 1..$size -> $p {
+	@initial-population.push:
+	  random-chromosome( $genome-length );
+    }
+    return @initial-population;
+}</code></pre>
+  </section>
+
+<section><h1>... through <strong>evaluation</strong>...</h1>
+  <pre><code>multi sub evaluate( :@population,
+	            :%fitness-of,
+	            :$evaluator --> Mix ) is export {
+    my MixHash $pop-bag;
+    for @population -> $p {
+	if  ! %fitness-of{$p}.defined {
+	    %fitness-of{$p} = $evaluator( $p );
+	}
+	$pop-bag{$p} = %fitness-of{$p};
+    }
+    return $pop-bag.Mix;
+}</code></pre>
+</section>
+</section>
 
 	
 	<!-- Concurrency -->
