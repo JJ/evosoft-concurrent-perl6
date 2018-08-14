@@ -178,7 +178,7 @@
 	  </section>
 
 	  <section>
-	    <h1>Just add <strong>Perl6</strong>
+	    <h1>Just add <strong>Perl6</strong></h1>
 	      <pre><code>proto evaluate( :@population,
 	        :%fitness-of, :$evaluator, |) { * };
 multi sub evaluate( :@population,
@@ -186,9 +186,10 @@ multi sub evaluate( :@population,
 	            :$evaluator,
                     Bool :$auto-t --> Mix ) is export {
 </code></pre>
+</section>
 
 <section><h1>... for instant <strong>auto-threadhing</strong></h1>
-<pre><code>	my @unique-population = @population.unique;
+<pre><code>my @unique-population = @population.unique;
     my @evaluations = @unique-population.hyper.map( { $^p => $evaluator( $^p ) } );
     my MixHash $pop-bag;
     for @evaluations -> $pair {
@@ -209,7 +210,7 @@ multi sub evaluate( :@population,
 
 <section>
   <h1>Communicating sequential processes</h1>
-	    <h1 class='fragment'><strong>Stateless</strong> process writes to/read from <strong>channels</strong></h1> 
+	    <h1 class='fragment'><strong>Stateless</strong> process writes to/reads from <strong>channels</strong></h1> 
 	  </section>
 
           
@@ -243,6 +244,10 @@ multi sub evaluate( :@population,
 	<!-- Perl 6 -->
 	<section>
 
+	  <section><h1>How do we do that</h1>
+	    <h2 class='fragment'>With Perl&nbsp;6</h2>
+	  </section>
+	  
 	  <section><h1>Perl 6 offers <strong>channel</strong> based concurrency</h1>
 	  </section>
 	  <section><pre><code>my Channel $c .= new;
