@@ -110,7 +110,7 @@
 }</code></pre>
   </section>
 
-<section><h1>... through <strong>evaluation</strong>...</h1>
+<section><h2>... through <strong>evaluation</strong>...</h2>
   <pre><code>multi sub evaluate( :@population,
 	            :%fitness-of,
 	            :$evaluator --> Mix ) is export {
@@ -123,7 +123,12 @@
     }
     return $pop-bag.Mix;
 }</code></pre>
+<aside class='notes'>Evaluation can take anything, but it returns a Mix. It works internally with a MixHash, wich is a mutable version of same. Here's an interesting thing that I haven't seen in any other language; I'm using elements and its "weight" as score. This is going to be useful later on.</aside>
+
 </section>
+
+<section><h2>... to <strong>select</strong> the best</h2>
+  
 </section>
 
 	
@@ -132,8 +137,29 @@
 	  <section data-background='https://farm2.staticflickr.com/1825/43420779171_eff116fc53_k_d.jpg'><h1><strong>共に</strong>: concurrency: flowing together</h1>
 	    <aside class='notes'>Tomoni: flowing together. It's a concept in martial arts</aside>
 	  </section>
-          
-	  <section><h1>Communicating sequential processes</h1>
+
+	  <section><h1>Just add <strong>Perl6</strong>
+<pre><code>multi sub evaluate( :@population,
+	            :%fitness-of,
+	            :$evaluator,
+                    Bool :$auto-t --> Mix ) is export {
+</code></pre>
+
+<section><h1>... for instant <strong>auto-threadhing</strong></h1>
+<pre><code>	my @unique-population = @population.unique;
+    my @evaluations = @unique-population.hyper.map( { $^p => $evaluator( $^p ) } );
+    my MixHash $pop-bag;
+    for @evaluations -> $pair {
+        $pop-bag{$pair.key.item} = $pair.value;
+    }
+    return $pop-bag.Mix;
+}</code></pre>	      
+<aside class='notes'>We had to do some shuffling to avoid deadlocks,
+  but this is equivalent to a normal evaluation, only 4x
+  faster.</aside>
+</section>
+
+<section><h1>Communicating sequential processes</h1>
 	    <h1 class='fragment'><strong>Stateless</strong> process writes to/read from <strong>channels</strong></h1> 
 	  </section>
 
