@@ -196,10 +196,14 @@
     return $pop-bag.Mix;
 }</code></pre>	      
 <aside class='notes'>We had to do some shuffling to avoid deadlocks,
-  but this is equivalent to a normal evaluation, only 4x
+  but this is equivalent to a normal evaluation, only 
   faster. You can try and find parts of the code that can be
   converted into concurrent this way. <code>hyper</code>, by default,
   uses 4 threads, but it can be configured to use more. </aside>
+</section>
+
+<section>
+  <h1><strong>2x</strong> increment in speed!</h1>
 </section>
 
 <section><h1>Still not flowing <strong>together</strong></h1>
