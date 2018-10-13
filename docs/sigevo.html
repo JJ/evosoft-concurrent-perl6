@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Concurrent EAs in Perl 6</title>
+    
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/extra.css">
+    <link rel="stylesheet" href="css/theme/sky.css">
+    
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    
+    <!-- Printing and PDF exports -->
+    <script>
+     var link = document.createElement( 'link' );
+     link.rel = 'stylesheet';
+     link.type = 'text/css';
+     link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+     document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+	<section><h1>Mapping evolutionary algorithms to a reactive,
+          stateless architecture</h1>
+          <h2>Using a modern concurrent language</h2>
+          <h3>JJ Merelo, Mario García-Valdez</h3>
+        </section>
+
+	<!-- Concurrency -->
+	<section>
+	  <section><h1><strong>共に</strong>: concurrency: flowing together</h1>
+	    <aside class='notes'>Tomoni: flowing together. It's a concept in martial arts</aside>
+	  </section>
+	  <section><h1>Communicating sequential processes</h1>
+	    <h1 class='fragment'><strong>Stateless</strong> process writes to/read from <strong>channels</strong></h1> 
+	  </section>
+	  <section><h1><strong>Stateless</strong>⇒ 1 to 1 mapping input/output</h1>
+	    <h2 class='fragment'>For <strong>all</strong> functions.</h2>
+	  </section>
+	</section>
+
+	<!-- Problems with EAs -->
+	<section>
+	  <section><h1>Evolutionary algorithms are <strong>not</strong> stateless</h1>
+	    <aside class='notes'>Mutation, crossover, selection, no problem. But there are problems with...</aside>
+	  </section>
+	  <section><h1><strong>No</strong> generation</h1>
+	    <h2 class='fragment'>Selection takes 1 population ⇒ produces 1 population</h2>
+	  </section>
+	  <section><h1>Depends on the <strong>level</strong> of concurrency</h1></section>
+	</section>
+
+	<!-- Perl 6 -->
+	<section>
+	  <section><h1>Perl 6 is a high-level</h1>
+	    <h1 class='fragment'>Multiparadigm</h1>
+	    <h1 class='fragment'>JIT compiled language</h1> 
+	  </section>
+	  <section><h1>Offers <strong>channel</strong> based concurrency</h1>
+	  </section>
+	  <section><pre><code>my Channel $c .= new;
+my Channel $c2 = $c.Supply.batch( elems => 2).Channel;
+my Channel $output .= new;
+my $count = 0;
+$c.send(1) for ^2;</code></pre>
+	  </section>
+	  <section><pre><code>my $more-work = start react whenever $c2 -&gt; @item {
+    if ( $count++ &lt; 32 ) {
+        $c.send( @item[1]);
+	my $sum = sum @item;
+	$c.send( $sum );
+	$output.send( $sum ); 
+    } else {
+	$c.close;
+    }
+}
+await $more-work; 
+	    </code></pre>
+	    <aside class='notes'>We have essentially two channels here, one that holds the items to be added, another that is used for output. But all threads (started with <code>start</code> read from one channel, write to the other</aside></section>
+	</section>
+
+<!-- Implementing a concurrent evolutionary algorithm in Perl 6 -->
+<section>
+  <section>
+    <h1>Challenge: design a <strong>stateless</strong> EA on this architecture</h1>
+  </section>
+</section>
+
+<!-- Experimental results -->
+<section>
+  <section data-background='img/channels-individual.png'></section>
+  <section data-background='img/individual-concurrent-ea.png'></section>
+</section>
+
+<section>
+	<section data-background='img/population-channel.png'></section>
+	<section data-background='img/population-initial.png'></section>
+	<section data-background='img/comparison-mo.png'></section>
+</section>
+
+<section>
+  <h1>Individual-level concurrency <strong>rocks</strong>!</h1>
+  <h2 class='fragment'>Interaction concurrency ⬄ EA</h2>
+  <h2 class='fragment'>Stateless needs meaningful dataflows</h2>
+</section>
+      </div>
+    </div>
+    
+    
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+    
+    <script>
+     // More info about config & dependencies:
+     // - https://github.com/hakimel/reveal.js#configuration
+     // - https://github.com/hakimel/reveal.js#dependencies
+     Reveal.initialize({
+      history: true,
+      width: '99%',
+       dependencies: [
+	 { src: 'plugin/notes/notes.js', async: true },
+	 { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+       ]
+     });
+    </script>
+  </body>
+</html>
