@@ -128,7 +128,7 @@
 	    <h1>進化</h1>
             <aside class='notes'>This is evolution in Japanese, which is a beautiful language.
 	      Shinka, with two ideograms meaning
-              advancing or progressing and changing or influencing. </aside>
+              advancing or progressing and changing or influencing. BTW, evolution for Japanese people is the opposite of paradigm shift; it's about changing things to make them better; gradual change, just like these hi-tech toilet seats.</aside>
           </section>
           
           <section>
@@ -213,16 +213,20 @@
 	<!-- Problems with EAs -->
 	<section>
 	  <section><h1>Evolutionary algorithms are <strong>not</strong> stateless</h1>
-	    <aside class='notes'>Mutation, crossover, selection, no problem. But there are problems with...</aside>
+	   <aside class='notes'>Mutation, crossover, selection, no problem. But there are problems with...</aside>
 	  </section>
+	  
 	  <section><h1><strong>Generation</strong>-level
 	      functions.</h1>
 	    
 	    <h2 class='fragment'>Selection takes 1 population ⇒
-	      produces 1 population</h2>
-	    <aside class='notes'>Statelessness is related to
-	    functional and reactive programming. There must be a
-	      one-to-one mapping to preserve statelessness.</aside>
+	      produces 1</h2>
+	    <aside class='notes'>So there's that</aside>
+	  </section>
+
+	  <section><h2><strong>Bigger problem</strong></h2>
+	    <h1 class='fragment'><strong>Mixing</strong> populations</h1>
+	    <aside class='notes'>That's actually the bigger problem. A trivial stateless version of an evolutionary algorithm can be created by putting everything there. A concurrent version of the same, not so much.</aside>
 	  </section>
 	  
 	  <section>
@@ -240,13 +244,18 @@
 	  </section>
 	  
 	  <section><h1>Perl 6 offers <strong>channel</strong> based concurrency</h1>
+	    <aside class='notes'>That is, an implementation of Hoare's CSPs, just like Erlang or the Go language.</aside>
 	  </section>
+	  
 	  <section><pre><code>my Channel $c .= new;
 my Channel $c2 = $c.Supply.batch( elems => 2).Channel;
 my Channel $output .= new;
 my $count = 0;
 $c.send(1) for ^2;</code></pre>
+
+	    <aside class='notes'>We are creatting a new "virtual" channel by batching the elements of another in sets of two. This is going to be useful later on.</aside>
 	  </section>
+
 	  <section><pre><code>my $more-work = start react whenever $c2 -&gt; @item {
     if ( $count++ &lt; 32 ) {
         $c.send( @item[1]);
@@ -277,7 +286,7 @@ await $more-work;
     </code></pre>
   </section>
 
-  <section><h1>Connecting to channel reproduction</h1>
+  <section><h1>Channel reproduction, broadcasting from...</h1>
     <pre><code>    my $selection = ( start react whenever $channel-three -> @tournament {
 	my @ranked = @tournament.sort( { .values } ).reverse;
 	$evaluated.send( $_ ) for @ranked[0..1];
@@ -327,10 +336,6 @@ await $more-work;
     <h1 class='fragment'>It more or less <strong>scales</strong></h1>
   </section>
 
-  <section><h1>Also</h1>
-    <h1 class='fragment'>Autothreading is great.</h1>
-    <aside class='notes'>We still need to test with scales...</aside>
-  </section>
 </section>
 
 <section>
