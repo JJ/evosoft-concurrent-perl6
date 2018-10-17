@@ -69,8 +69,37 @@
 	  <section data-background='https://farm4.staticflickr.com/3241/2462969567_67d38344a4_b_d.jpg'>
 	    <h1><strong>Split</strong> code from data</h1>
 	    <h2 class='fragment'><strong>Decouples</strong> state and computation</h2>
-	</section>
+	  </section>
 
+	  <section data-background='https://farm1.staticflickr.com/16/20059602_a6644e5f14_o_d.jpg' alt='Streams'>
+	    <h1>Processing in <strong>streams</strong></h1>
+	    <aside class='notes'>Which are used, under that name, by <a href='http://storm.apache.org/releases/1.1.2/Tutorial.html'>Apache Storm</a>, which talks about <em>spouts</em> and <em>bolts</em>, and can create meaningful dataflows in Java. We'll not use it, though.</aside>
+	  </section>
+	</section>
+	  
+	<section> <!-- versions of algorithms -->
+	  <section><h1>You can always go stateless</h1>
+	    <h2 class='fragment'>Put all <strong>state</strong> into arguments</h2></section>
+	  
+	  <section><h1>That's almost never <strong>practical</strong></h1>
+	      <h2 class='fragment'>Or <strong>efficient</strong></h2>
+
+	      <aside class='notes'>You can train a stateless neural network, for instance, by considering the current state of the NN a whole state and carrying from one computation to the next</aside>
+	  </section>
+
+	  <section data-background='https://farm2.staticflickr.com/1868/44367026921_c221d3ba74_k_d.jpg' alt='Venice in Vegas'>
+	    <h1>And <strong>functionally equivalent</strong> to stateful</h1>
+
+	    <aside class='notes'>It's like Venice in Vegas. It's functionally equivalent to the real thing, singing gondoliere and everything. Still, where would you want to go? If you want to achieve the same effect as in Venice, would you recreate it inside a casino or do something completely different? Well... </aside>
+	  </section>
+
+	  <section data-background='https://farm1.staticflickr.com/817/27351586608_5b666200ec_k_d.jpg'>
+	    <h1>Change the <strong>paradigm</strong></h1>
+	    <h2 class='fragment'>to go <strong>stateless</strong></h2>
+	    <aside class='notes'>You can make a popular car by putting the engine on the back, and leaving space for stuff on the front. That was a change of paradigm. If we want to create efficient implementations of evolutionary algorithms (or any other algorithms), we need to change the way we think about that particular algorithm to make it work.</aside>
+	  </section>
+	</section>
+	  
         <section
            data-background='https://farm6.staticflickr.com/5078/14026625866_36f153f8a3_k_d.jpg'>
 
@@ -180,64 +209,6 @@
     first.</aside>
 </section>
 </section>
-
-<!-- Concurrency -->
-<section>
-  <section>
-    <h1>But we have <strong>concurrency</strong>!
-    </h1>
-  </section>
-	  
-  <section data-background='https://farm2.staticflickr.com/1825/43420779171_eff116fc53_k_d.jpg'><h1><strong>共に</strong>: concurrency: flowing together</h1>
-    <aside class='notes'>Tomoni: flowing together. It's a concept in martial arts</aside>
-  </section>
-
-  <section>
-	    <h1>Just add <strong>Perl&nbsp;6</strong></h1>
-	    <pre><code>proto evaluate( :@population,
-	        :%fitness-of, :$evaluator, |) { * };
-		multi sub evaluate( :@population,
-	        :%fitness-of,
-	        :$evaluator,
-                Bool :$auto-t --> Mix ) is export {
-</code></pre>
-</section>
-
-<section><h1>... for instant <strong>auto-threadhing</strong></h1>
-<pre><code>my @unique-population = @population.unique;
-    my @evaluations = @unique-population.hyper.map( { $^p => $evaluator( $^p ) } );
-    my MixHash $pop-bag;
-    for @evaluations -> $pair {
-        $pop-bag{$pair.key.item} = $pair.value;
-    }
-    return $pop-bag.Mix;
-}</code></pre>	      
-<aside class='notes'>We had to do some shuffling to avoid deadlocks,
-  but this is equivalent to a normal evaluation, only 
-  faster. You can try and find parts of the code that can be
-  converted into concurrent this way. <code>hyper</code>, by default,
-  uses 4 threads, but it can be configured to use more. </aside>
-</section>
-
-<section>
-  <h1><strong>2x</strong> increment in speed!</h1>
-</section>
-
-<section><h1>Still not flowing <strong>together</strong></h1>
-  <h2 class='fragment'>Let's change the paradigm</h2>
-  <aside class='notes'>We have achieved some improvement, although not a great deal... 
-</section>
-
-<section>
-  <h1>Communicating sequential processes</h1>
-	    <h1 class='fragment'><strong>Stateless</strong> process writes to/reads from <strong>channels</strong></h1> 
-	  </section>
-
-          
-	  <section><h1><strong>Stateless</strong>⇒ 1 to 1 mapping input/output</h1>
-	    <h2 class='fragment'>For <strong>all</strong> functions.</h2>
-	  </section>
-	</section>
 
 	<!-- Problems with EAs -->
 	<section>
