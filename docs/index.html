@@ -44,9 +44,12 @@
 	  </section>
 
 	  <section><h1>Sequential processes communicate</h1>
-	    <h1 class='fragment'>Process writes to/read from <strong>channels</strong></h1> 
+	    <h1 class='fragment'>Process writes to/read from <strong>channels</strong></h1>
 	  </section>
 
+	  <section><h1>But they <strong>don't</strong> share state</h1>
+	    <aside class='notes'>Very interesting article: <a href='https://leonmergen.com/on-stateless-software-design-what-is-state-72b45b023ba2'>on stateless software design</a></aside>
+	  </section>
 	</section>
 
 	<!-- Statelessness -->
@@ -61,6 +64,11 @@
 	  <section>
 	    <h1>State is processed, <strong>not</strong> mutated</h1>
 	    <img src='img/Stateless.png' alt='Stateless diagram, adapted from https://leonmergen.com/on-stateless-software-design-what-is-state-72b45b023ba2'>
+	  </section>
+
+	  <section data-background='https://farm4.staticflickr.com/3241/2462969567_67d38344a4_b_d.jpg'>
+	    <h1><strong>Split</strong> code from data</h1>
+	    <h2 class='fragment'><strong>Decouples</strong> state and computation</h2>
 	</section>
 
         <section
