@@ -299,6 +299,19 @@ await $more-work;
       fast as possible.</aside>
   </section>
 
+  <section data-background='img/mutable-algorithm.png'><h2>Start here</h2>
+
+  </section>
+
+  <section data-background='img/stateless-algorithm.png'><h1 class='fragment'>Go stateless</h1>
+
+  </section>
+
+  <section data-background='img/parallel-algorithm.png' title='Parallel algorithm'>
+    <h2>Go parallel</h2>
+  </section>
+
+  
   <section><h1>Other levels are possible</h1>
     <pre><code>my $single = ( start react whenever $channel-one -> $crew {
 	# Get values  and ...
@@ -315,6 +328,12 @@ await $more-work;
     } ) for ^$threads; </code></pre>
 			 </section>
 
+  <section data-background='img/concurrent-algorithm.png' title='Concurrent algorithm'><h2>Go concurrent</h2>
+    <aside class='notes'>We need to mix the populations to make it somethign that is better, or different, from the original sequential evolutionary algorithm in paralle.</aside>
+  </section>
+
+  <section data-background='img/channels-individual.png'></section>
+
   <section><h1>Diversity is good</h1>
 <pre><code>    my $pairs = start react whenever $mixer -> @pair {
 	$to-mix.send( @pair.pick ); # To avoid getting it hanged up
@@ -324,13 +343,6 @@ await $more-work;
       system; mixing actually is where concurrency is acting</aside>
   </section>
 </section>
-
-<!-- Scheme -->
-<section>
-  <section data-background='img/channels-individual.png'></section>
-  <section data-background='img/individual-concurrent-ea.png'></section>
-</section>
-
 
 <!-- Experimental results -->
 <section>
@@ -354,7 +366,8 @@ await $more-work;
     <aside class='notes'>Which is more or less a constant in metaheuristics. They are stochastic algorithms, changes in diversity or anything will impact the bottom line.</aside>
   </section>
 
-  <section><h1>Change brings success</h1>
+  <section>
+    <h1>Change brings success</h1>
     <h1 class='fragment'>And beauty</h1>
   </section>
   
