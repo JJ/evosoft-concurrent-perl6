@@ -143,8 +143,9 @@ section[data-background] blockquote {
 .reveal .footer {
   position: absolute;
   bottom: 1em;
-  left: 1em;
+  left: -3em;
   font-size: 0.5em;
+  background-color:rgba(233,223,213,0.7);
 }
 
 img.flat.smallflat {
