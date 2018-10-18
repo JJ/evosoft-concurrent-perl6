@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>Concurrent evolutionary algorithms: changing the paradigm</title>
+    <title>Going stateless in concurrent evolutionary algorithms</title>
     
     <link rel="stylesheet" href="css/reveal.css">
     <link rel="stylesheet" href="css/extra.css">
@@ -34,16 +34,11 @@ src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"
 /></a><br />This work is under a <a rel="license"
 				    href="http://creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA 4.0 license</a>.</div>
 	
-	<section data-background='https://farm2.staticflickr.com/1956/44665248754_c7078dd860_k_d.jpg'><h2>Concurrent evolutionary algorithms:</h2>
-	  <h1> ⚡ paradigm</h1>
+	<section data-background='https://farm8.staticflickr.com/7461/28536902676_53f2a1c839_k_d.jpg'><h2>Going stateless in concurrent evolutionary
+algorithms</h2>
           <h3>JJ Merelo, <code>@jjmerelo</code>
-	  University of Granada (Spain)</h2>
-	  <aside class='notes'>A mural found in Barrio Colombia, which changes the paradigm to a metallic, wheel based bus to an organic one, creating an unique work of art.</aside>
-        </section>
-
-        <section> <!-- Old pictures -->
-          <p><a href="https://commons.wikimedia.org/wiki/File:Muisca_raft_Legend_of_El_Dorado_Offerings_of_gold.jpg#/media/File:Muisca_raft_Legend_of_El_Dorado_Offerings_of_gold.jpg"><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Muisca_raft_Legend_of_El_Dorado_Offerings_of_gold.jpg" alt="Muisca raft Legend of El Dorado Offerings of gold.jpg" width="584" height="438"></a><br>By Andrew Bertram - <a rel="nofollow" class="external text" href="http://www.world66.com/southamerica/colombia/bogota/lib/gallery/showimage?pic=southamerica/colombia/bogota/offerings_of_gold">World66</a>, <a href="https://creativecommons.org/licenses/by-sa/1.0" title="Creative Commons Attribution-Share Alike 1.0">CC BY-SA 1.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=966401">Link</a></p>
-	  <aside class='notes'>This is the Muisca raft, which you can visit any day in the Gold Museum in Bogotá. It was made with a technique called <a href='https://en.wikipedia.org/wiki/Lost-wax_casting'>Lost-wax casting</a>. It's the only way to obtain filigree and create complex figures, like the so-called Tunjos. And this was a change of paradigm. From building from hammering, to creating precise molds, molds that you could, eventually re-use. </aside>
+	  University of Granada (Spain) + Mario García, Tecnológico de Tijuana, México</h2>
+	  <aside class='notes'>There seems to be no state from the sky</aside>
         </section>
 
 	<!-- Concurrency -->
@@ -55,15 +50,11 @@ src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"
 
 	  <section><h1>Sequential processes communicate</h1>
 	    <h1 class='fragment'>Process writes to/read from <strong>channels</strong></h1>
-	  </section>
+	    <h2>But they <strong>don't</strong> share state</h2>
 
-	  <section><h1>But they <strong>don't</strong> share state</h1>
 	    <aside class='notes'>Very interesting article: <a href='https://leonmergen.com/on-stateless-software-design-what-is-state-72b45b023ba2'>on stateless software design</a></aside>
 	  </section>
-	</section>
 
-	<!-- Statelessness -->
-	<section>
 	  <section data-background='https://farm2.staticflickr.com/1942/45373954871_01f19d8982_h_d.jpg'>
 	    <h1><strong>Stateless</strong>⇒ 1 to 1 mapping input/output</h1>
 	    <h2 class='fragment'>For <strong>all</strong> functions.</h2>
@@ -85,285 +76,60 @@ src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"
 	    <h1>Processing in <strong>streams</strong></h1>
 	    <aside class='notes'>Which are used, under that name, by <a href='http://storm.apache.org/releases/1.1.2/Tutorial.html'>Apache Storm</a>, which talks about <em>spouts</em> and <em>bolts</em>, and can create meaningful dataflows in Java. We'll not use it, though.</aside>
 	  </section>
+	  
+	<section data-background='https://farm2.staticflickr.com/1868/44367026921_c221d3ba74_k_d.jpg' alt='Venice in Vegas'>
+	  <h1>You can always go stateless</h1>
+	  <h2 class='fragment'>Put all <strong>state</strong> into arguments</h2>
+	  <h1>⇒ <strong>functionally equivalent</strong></h1>
+	  <aside class='notes'>It's like Venice in Vegas. It's functionally equivalent to the real thing, singing gondoliere and everything. Still, where would you want to go? If you want to achieve the same effect as in Venice, would you recreate it inside a casino or do something completely different? Well... </aside>
 	</section>
-	  
-	<section> <!-- versions of algorithms -->
-	  <section><h1>You can always go stateless</h1>
-	    <h2 class='fragment'>Put all <strong>state</strong> into arguments</h2></section>
-	  
-	  <section data-background='https://farm5.staticflickr.com/4646/39324554942_29041def62_b_d.jpg' alt='rotonda del helic&oacute;ptero'>
-	    <h1>That's almost never <strong>practical</strong></h1>
-	      <h2 class='fragment'>Or <strong>efficient</strong></h2>
 
-	      <aside class='notes'>You can train a stateless neural network, for instance, by considering the current state of the NN a whole state and carrying from one computation to the next. Same as this helicopter roundabout in Spain. It's a roundabout and it's got a helicopter. Only it's not the real thing and it's kind of silly. <a href='https://uhra.herts.ac.uk/handle/2299/18193'>Some papers have applied this kind of ting to ant colony optimization algorithms</a>, using a framework called S-Net. Ants, unlike evolutionary algorithms, are concurrent and asynchronous, but they have a shared state: the pheromone map.
-	      </aside>
-	  </section>
-
-	  <section data-background='https://farm2.staticflickr.com/1868/44367026921_c221d3ba74_k_d.jpg' alt='Venice in Vegas'>
-	    <h1>And <strong>functionally equivalent</strong> to stateful</h1>
-
-	    <aside class='notes'>It's like Venice in Vegas. It's functionally equivalent to the real thing, singing gondoliere and everything. Still, where would you want to go? If you want to achieve the same effect as in Venice, would you recreate it inside a casino or do something completely different? Well... </aside>
-	  </section>
-
-	  <section data-background='https://farm1.staticflickr.com/817/27351586608_5b666200ec_k_d.jpg'>
-	    <h1>Change the <strong>paradigm</strong></h1>
-	    <h2 class='fragment'>to go <strong>stateless</strong></h2>
-	    <aside class='notes'>You can make a popular car by putting the engine on the back, and leaving space for stuff on the front. That was a change of paradigm. If we want to create efficient implementations of evolutionary algorithms (or any other algorithms), we need to change the way we think about that particular algorithm to make it work.</aside>
-	  </section>
 	</section>
-	  
-        <section
-           data-background='https://farm6.staticflickr.com/5078/14026625866_36f153f8a3_k_d.jpg'>
 
+	<section>
 	  <section data-background='https://farm5.staticflickr.com/4665/39415397895_3625556e2b_k_d.jpg'>
 	    <h1>Evolutionary algorithms in Perl&nbsp;<strong>six</strong>
 	    </h1>
+	    <h2 class='fragment'>Concurrent, JIT-compiled, functional</h2>
 	  </section>
 	  
-          <section data-background='https://farm2.staticflickr.com/1459/24506659293_3e523e8df9_k_d.jpg'>
-            <h1>Perl 6 is a concurrent</h1>
-	    <aside class='notes'>Most of you know already this, so I'll go quickly over it</aside>
-          </section>
 
-          <section>
-            <h1>Functional</h1>
-	    <h1 class='fragment'>JIT-compiled language</h1>
-	    <aside class='notes'>These last two things are the ones that interest us the most; both go together quite well. But this is the Perl 6 part. Let's proceed to the evolutionary algorithms themselves.</aside>
-	    
-          </section>
-	</section>
-	
-
-        <!-- Evolutionary algorithms -->
-        <section>
-          <section data-background='https://farm2.staticflickr.com/1784/28546917357_fb3598235f_k_d.jpg' title='progress in wcs'>
-	    <h1>進化</h1>
-            <aside class='notes'>This is evolution in Japanese, which is a beautiful language.
-	      Shinka, with two ideograms meaning
-              advancing or progressing and changing or influencing. BTW, evolution for Japanese people is the opposite of paradigm shift; it's about changing things to make them better; gradual change, just like these hi-tech toilet seats.</aside>
-          </section>
-          
-          <section>
-	    <h2>Evolutionary algorithms evolve <strong>codified</strong> solutions</h2>
-	    <pre><code>sub random-chromosome( UInt $length --> List(Seq) )
-  is export {
-    return Bool.pick() xx $length;
-}
-</code></pre>
-
-<aside class='notes'>Chromosomes are simply lists of random Bools, or bits. Other data structures are possible, but this works well for demos and many benchmark functions.</aside>
-</section>
-
-<section><h1> ... in <strong>populations</strong> ... </h1>
-<pre><code>sub initialize( UInt :$size,
-		UInt :$genome-length --> Array ) is export {
-    my @initial-population;
-    for 1..$size -> $p {
-	@initial-population.push:
-	  random-chromosome( $genome-length );
-    }
-    return @initial-population;
-}</code></pre>
-  </section>
-
-<section><h2>... through <strong>evaluation</strong>...</h2>
-  <pre><code>multi sub evaluate( :@population,
-	            :%fitness-of,
-	            :$evaluator --> Mix ) is export {
-    my MixHash $pop-bag;
-    for @population -> $p {
-	if  ! %fitness-of{$p}.defined {
-	    %fitness-of{$p} = $evaluator( $p );
-	}
-	$pop-bag{$p} = %fitness-of{$p};
-    }
-    return $pop-bag.Mix;
-}</code></pre>
-<aside class='notes'>Evaluation can take anything, but it returns a Mix. It works internally with a MixHash, wich is a mutable version of same. Here's an interesting thing that I haven't seen in any other language; I'm using elements and its "weight" as score. This is going to be useful later on. Also, I'm using a cache so that I don't evaluate twice the same thing. It's not important at the beginning, but by the end of the simulation lots of values are going to be the same.</aside>
-
-</section>
-
-<section>
-  <h2>... to <strong>select</strong> the best</h2>
-<pre><code>  sub get-pool-roulette-wheel( Mix $population,
-			     UInt $need = $population.elems ) is export {
-    return $population.roll: $need;
-}</code></pre>
-<aside class='notes'>Since it's a Mix, just a roll takes care of
-  selecting with a probability thats related to fitness</aside>
-</section>
-
-<section><h1>... and interchange bits ... </h1>
-<pre><code>    my $length = @chromosome1.elems;
-    my $xover1 = (^($length-2)).pick;
-    my $xover2 = ($xover1^..^$length).pick;
-    my @x-chromosome = @chromosome2;
-    my @þone = $xover1..$xover2; # crosover zone
-    @chromosome2[@þone] = @chromosome1[@þone];
-    @chromosome1[@þone] = @x-chromosome[@þone];
-    return [@chromosome1,@chromosome2];</code></pre>
-<aside class='notes'>These are selected randomly from all members in
-  the population.</aside></section>
-
-<section><h1>... which mutate ...</h1>
-<pre><code>sub mutation ( @chromosome is copy --> List ) is export {
-    my $pick = (^@chromosome.elems).pick;
-    @chromosome[ $pick ] = !@chromosome[ $pick ];
-    return @chromosome;
-}</code></pre>
-
-<aside class='notes'>It's a single bitflip of an element randomly
-  chosen</aside>
-</section>
-
-<section><h1>Repeat until solution is <strong>found</strong></h1>
-  <aside class='notes'>Or until you get tired, whatever happens
-    first.</aside>
-</section>
-</section>
 
 	<!-- Problems with EAs -->
 	<section>
 	  <section><h1>Evolutionary algorithms are <strong>not</strong> stateless</h1>
-	   <aside class='notes'>Mutation, crossover, selection, no problem. But there are problems with...</aside>
+	    <h2 class='fragment'>Who will de-state-ify them?</h2>
+	   <aside class='notes'>Mutation, crossover, selection, no problem. But there are problems with generation-level function. Let's do it with Perl 6</aside>
 	  </section>
 	  
-	  <section><h1><strong>Generation</strong>-level
-	      functions.</h1>
+	  <section data-background='img/mutable-algorithm.png'><h2>Start here</h2>
 	    
-	    <h2 class='fragment'>Selection takes 1 population ⇒
-	      produces 1</h2>
-	    <aside class='notes'>So there's that</aside>
 	  </section>
 
-	  <section><h2><strong>Bigger problem</strong></h2>
-	    <h1 class='fragment'><strong>Mixing</strong> populations</h1>
-	    <aside class='notes'>That's actually the bigger problem. A trivial stateless version of an evolutionary algorithm can be created by putting everything there. A concurrent version of the same, not so much.</aside>
+	  <section data-background='img/stateless-algorithm.png'><h1 class='fragment'>Go stateless</h1>
+	    
 	  </section>
-	  
-	  <section>
-	    <h1>Let's <strong>de-state-ify</strong> evolutionary algorithms</h1>
-	    <aside class='notes'>By converting them in a set
-	    of <em>pure</em> functions. 
-	  </section>
-	</section>
 
-	<!-- Perl 6 -->
-	<section>
-
-	  <section><h1>How do we do that</h1>
-	    <h2 class='fragment'>With Perl&nbsp;6?</h2>
-	  </section>
-	  
 	  <section><h1>Perl 6 offers <strong>channel</strong> based concurrency</h1>
 	    <aside class='notes'>That is, an implementation of Hoare's CSPs, just like Erlang or the Go language.</aside>
 	  </section>
 	  
-	  <section><pre><code>my Channel $c .= new;
-my Channel $c2 = $c.Supply.batch( elems => 2).Channel;
-my Channel $output .= new;
-my $count = 0;
-$c.send(1) for ^2;</code></pre>
 
-	    <aside class='notes'>We are creatting a new "virtual" channel by batching the elements of another in sets of two. This is going to be useful later on.</aside>
+	  <section data-background='img/concurrent-algorithm.png' title='Concurrent algorithm'><h2>Go concurrent</h2>
+	    <aside class='notes'>We need to mix the populations to make it somethign that is better, or different, from the original sequential evolutionary algorithm in paralle.</aside>
 	  </section>
 
-	  <section><pre><code>my $more-work = start react whenever $c2 -&gt; @item {
-    if ( $count++ &lt; 32 ) {
-        $c.send( @item[1]);
-	my $sum = sum @item;
-	$c.send( $sum );
-	$output.send( $sum ); 
-    } else {
-	$c.close;
-    }
-}
-await $more-work; 
-	    </code></pre>
-	    <aside class='notes'>We have essentially two channels here, one that holds the items to be added, another that is used for output. But all threads (started with <code>start</code> read from one channel, write to the other</aside></section>
+	  <section><h1>Two levels: individual and population</h1>
+	    <h2><strong>Messages</strong> to channels</h2>
+	    <aside class='notes>That implies what is going to be sent to the channels, processed, and <em>mixed</em>
+	    </aside>
+	  </section>
 	</section>
-
-<!-- Implementing a concurrent evolutionary algorithm in Perl 6 -->
-<section>
-  <section>
-    <h1>Challenge: design a <strong>stateless</strong> EA with <strong>channels</strong></h1>
-  </section>
-
-  <section><h1>Connecting to channel evaluation</h1>
-    <pre><code> my @evaluation = ( start react whenever $raw -> $one {
-	my $with-fitness = $one => max-ones($one);
-	$output.send( $with-fitness );
-	$evaluated.send( $with-fitness); # Check for solution and stuff
-    } ) for ^$threads;
-    </code></pre>
-  </section>
-
-  <section><h1>Channel reproduction, broadcasting from...</h1>
-    <pre><code>    my $selection = ( start react whenever $channel-three -> @tournament {
-	my @ranked = @tournament.sort( { .values } ).reverse;
-	$evaluated.send( $_ ) for @ranked[0..1];
-	my @crossed = crossover(@ranked[0].key,@ranked[1].key);
-	$raw.send( $_.list ) for @crossed.map: { mutation($^þ)};
-    } ) for ^($threads/2);
-    </code></pre>
-    <aside class='notes'>You probably need less threads making the
-    reproduction than doing the evaluation, which should be done as
-      fast as possible.</aside>
-  </section>
-
-  <section data-background='img/mutable-algorithm.png'><h2>Start here</h2>
-
-  </section>
-
-  <section data-background='img/stateless-algorithm.png'><h1 class='fragment'>Go stateless</h1>
-
-  </section>
-
-  <section data-background='img/parallel-algorithm.png' title='Parallel algorithm'>
-    <h2>Go parallel</h2>
-  </section>
-
-  
-  <section><h1>Other levels are possible</h1>
-    <pre><code>my $single = ( start react whenever $channel-one -> $crew {
-	# Get values  and ...
-	while $count++ < $generations && best-fitness($population) < $length {
-	    LAST {
-		if best-fitness($population) >= $length {
-		    $channel-one.close;
-		} else {
-		    $to-mix.send( $population );
-		}
-	    };
-            # Forward one generation
-	}
-    } ) for ^$threads; </code></pre>
-			 </section>
-
-  <section data-background='img/concurrent-algorithm.png' title='Concurrent algorithm'><h2>Go concurrent</h2>
-    <aside class='notes'>We need to mix the populations to make it somethign that is better, or different, from the original sequential evolutionary algorithm in paralle.</aside>
-  </section>
-
-  <section data-background='img/channels-individual.png'></section>
-
-  <section><h1>Diversity is good</h1>
-<pre><code>my $pairs = start react whenever $mixer -> @pair {
-      $to-mix.send( @pair.pick ); # To avoid getting it hanged up
-      $channel-one.send(mix( @pair[0], @pair[1], $population-size ));
-};</code></pre>
-    <aside class='notes'>This takes it apart from a purely sequential
-      system; mixing actually is where concurrency is acting</aside>
-  </section>
-</section>
-
+	
 <!-- Experimental results -->
 <section>
   <section data-background='https://farm1.staticflickr.com/4/4432124_cfb4f065dc_o_d.jpg'>
     <h2>Conclusions</h2>
-    <h1 class='fragment'><strong>change the paradigm</strong> for concurrent algorithms</h1>
-  </section>
-
-  <section>
     <h1>There is more than one way to do it</h1>
     <aside class='notes'>Which has always been Perl's motto, so no surprise here. You can mix and match many different ways to deal with the processes, what everyone does, and if it's reactive or not.</aside>
   </section>
