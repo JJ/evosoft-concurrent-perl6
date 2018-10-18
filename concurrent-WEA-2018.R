@@ -27,11 +27,13 @@ comparison.64 <- rbind(comparison.64,
 
 ## ----results-mo, cache=FALSE,echo=FALSE----------------------------------
 ggplot(evaluations,aes(x=bits,y=evaluations,group=bits))+geom_boxplot()+ scale_y_log10()+theme_tufte()+labs(x="Bits",y="Evaluations",title="Individually concurrent evolutionary algorithm")
-
+ggsave("evaluations-wea.png",width=8,height=4.5)
 ## ----population-initial, cache=FALSE,echo=FALSE--------------------------
 population.initial <- data.frame(Number=population.v2$V1,Evaluations=population.v2$value)
 ggplot(population.initial,aes(x=Number,y=Evaluations,group=Number))+geom_boxplot()+theme_tufte()+labs(x="Number of initial populations",y="Evaluations",title="Comparing population-level concurrent EA for different number of initial populations")+ scale_y_log10()
+ggsave("initial-population-wea.png",width=8,height=4.5)
 
 ## ----comparison-mo, cache=FALSE,echo=FALSE-------------------------------
 ggplot(comparison.64,aes(x=algorithm,y=evaluations,group=algorithm))+geom_boxplot()+theme_tufte()+labs(x="Algorithm",y="Evaluations",title="Comparing algorithms for the 64 bit onemax problem")+ scale_y_log10()
+ggsave("evaluations.png",width=8,height=4.5)
 
