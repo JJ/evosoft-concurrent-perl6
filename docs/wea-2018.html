@@ -93,11 +93,7 @@ algorithms</h2>
 	    <h2 class='fragment'>Concurrent, JIT-compiled, functional</h2>
 	  </section>
 	  
-
-
-	<!-- Problems with EAs -->
-	<section>
-	  <section><h1>Evolutionary algorithms are <strong>not</strong> stateless</h1>
+	  <section><h1>But... evolutionary algorithms are <strong>not</strong> stateless</h1>
 	    <h2 class='fragment'>Who will de-state-ify them?</h2>
 	   <aside class='notes'>Mutation, crossover, selection, no problem. But there are problems with generation-level function. Let's do it with Perl 6</aside>
 	  </section>
@@ -119,12 +115,21 @@ algorithms</h2>
 	    <aside class='notes'>We need to mix the populations to make it somethign that is better, or different, from the original sequential evolutionary algorithm in paralle.</aside>
 	  </section>
 
-	  <section><h1>Two levels: individual and population</h1>
+	  <section data-background='https://farm2.staticflickr.com/1574/24508050903_754a7f4cf8_k_d.jpg' alt='bridge'>
+	    <h1>Two levels: individual and population</h1>
 	    <h2><strong>Messages</strong> to channels</h2>
 	    <aside class='notes>That implies what is going to be sent to the channels, processed, and <em>mixed</em>
 	    </aside>
 	  </section>
 	</section>
+
+<!-- Experimental results -->
+<section>
+  <section><img src='img/evaluations-wea.png' style='width:800px' alt='individual evaluations'></section>
+  <section><img src='img/initial-population-wea.png'  style='width:800px' alt='initial populations'></section>
+  <section><h2>Which algorithm is better?</h2>
+    <img src='img/evaluations.png'  style='width:800px'  alt='Number of evaluations per method'></section>
+</section>	
 	
 <!-- Experimental results -->
 <section>
@@ -134,30 +139,20 @@ algorithms</h2>
     <aside class='notes'>Which has always been Perl's motto, so no surprise here. You can mix and match many different ways to deal with the processes, what everyone does, and if it's reactive or not.</aside>
   </section>
 
-  <section><h1>Start with functional equivalence</h1>
-    <h2 class='notes'>Add communication</h2>
+  <section><h2>Start with functional equivalence</h2>
+    <h1 class='notes'>Add <strong>communication</strong></h1>
   </section>
 
-  <section>
-    <h1>New version > original</h1>
-    <h2 class='fragment'>Interaction concurrency ⬄ EA</h2>
-    <aside class='notes'>Which is more or less a constant in metaheuristics. They are stochastic algorithms, changes in diversity or anything will impact the bottom line.</aside>
+  <section data-background='https://farm1.staticflickr.com/228/475807016_9a6d7d5f49_o_d.jpg'>
+    <h1>New algorithm, new tuning parameters</h1>
   </section>
 
-  <section>
-    <h1>Change brings success</h1>
-    <h1 class='fragment'>And beauty</h1>
+  <section data-background='https://farm2.staticflickr.com/1936/45349469921_b1a275e1d9_k_d.jpg'><h2>Thank you very much</h2>
+    <h1>Questions?</h1>
   </section>
   
 </section>
 
-<section><h2>Credits</h2>
-  <ul class='credits'>
-    <li><a
-  href='https://www.flickr.com/photos/wendyga/14026625866/'>Camelia
-      by Wendy van Dijk</a></li>
-  </ul>
-</section>
       </div>
     </div>
     
