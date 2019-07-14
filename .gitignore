@@ -228,3 +228,5 @@ TSWLatexianTemp*
 concurrent-evosoft-2018.tex
 *.ps
 *.zip
+
+.RData
