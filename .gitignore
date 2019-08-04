@@ -230,3 +230,5 @@ concurrent-evosoft-2018.tex
 *.zip
 
 .RData
+
+.idea/
