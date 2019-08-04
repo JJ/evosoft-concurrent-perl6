@@ -11,7 +11,7 @@ sub MAIN( :$length = 64, :$population-size =  256 ) {
     my @population = ( Bool.pick() xx $length ) xx $population-size;
 
     do {
-	my @evaluated = @population.map( { @_ => royal-road( @_ ) } );
-	say @evaluated;
+	    my @evaluated = @population.map( { @$_ => royal-road( @$_ ) } );
+        # Now evolve... 
     }
 }
