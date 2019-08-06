@@ -26,4 +26,5 @@ sub MAIN( :$length = 64, :$population-size =  200 ) {
 	my @mutated = @reproductive-pool.pick( $population-size*3/5).map( {mutate(@$_)} );
 	@population = ( @crossed.Slip, @mutated.Slip, @reproductive-pool.pick( $population-size / 5 ).Slip );
     }
+    say @population;
 }
