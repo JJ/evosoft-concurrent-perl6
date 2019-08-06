@@ -13,7 +13,7 @@ sub mutate ( @x is copy ) {
     @x;
 }
 
-sub MAIN( :$length = 64, :$population-size =  256 ) {
+sub MAIN( :$length = 64, :$population-size =  200 ) {
 
     my @population = ( Bool.pick() xx $length ) xx $population-size;
 
