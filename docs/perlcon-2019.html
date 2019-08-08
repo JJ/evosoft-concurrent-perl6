@@ -25,19 +25,27 @@
   <body>
     <div class="reveal">
       <div class="slides">
-	<section><h1>Concurrent evolutionary algorithms with Perl 6</h1>
+	
+	<section><h1>Genesis</h1>
+	  <h2 class='fragment'>Concurrent evolutionary algorithms with Perl 6</h2>
           <h3>JJ Merelo, <code>@jjmerelo</code></h3>
-	  <aside class='notes'>Yep, you've probably seen this before. It's cooler now, and it works. 
+	  <aside class='notes'>Yep, you've probably seen this before. It's cooler now, and it works, as in actually scaling. I keep doing this, but well, it keeps me in the publish and perish loop, so it's OK.</aside>
         </section>
 
         <!-- Evolutionary algorithms -->
         <section>
+	  <section><h1>EAs are optimization methods</h1>
+	    <h2 class='fragment'>Optimize this</h2>
+	    <pre class='fragment'><code>sub road-royale ( @χ ) {
+    @χ.rotor(4).map( {so @_.all + so @_.none}).sum;
+}
+	    </code></pre>
+	    <aside class='notes'>It can optimize (or search if it can be formulated in terms of distances) any function. This function is often used because it's simple but it's also got some "neutral" changes: it increases fitness only when several things changes at the same time. Also includes junctions, and cool stuff.</aside>
+	  </section>
+	  
           <section>
 	    <h2>Evolutionary algorithms evolve <strong>encoded</strong> solutions</h2>
-	    <pre><code>sub random-chromosome( UInt $length --> List(Seq) )
-  is export {
-    return Bool.pick() xx $length;
-}
+	    <pre><code>    my @population = ( Bool.pick() xx $length ) xx $population-size;
 </code></pre>
 
 <aside class='notes'>Chromosomes are simply lists of random Bools, or bits. Other data structures are possible, but this works well for demos and many benchmark functions.</aside>

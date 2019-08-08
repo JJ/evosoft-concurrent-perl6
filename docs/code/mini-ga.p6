@@ -25,11 +25,9 @@ sub xover( @x, @y ) {
 sub MAIN( :$length = 64, :$population-size =  200 ) {
 
     my @population = ( Bool.pick() xx $length ) xx $population-size;
-    say @population[0],@population[1];
-    say xover( @population[0],@population[1]);
     loop {
-        my $evaluated = @population.map( { @$_ => road-royale( @$_ ) } ).Mix;
-        say "Evaluating ";
+	say "Evaluating ";
+	my $evaluated = @population.map( { @$_ => road-royale( @$_ ) } ).Mix;
         last if any( $evaluated.values ) == $length/4;
         my @reproductive-pool = $evaluated.roll( $population-size );
         my @crossed = @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } );
