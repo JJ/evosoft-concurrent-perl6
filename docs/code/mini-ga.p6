@@ -19,20 +19,24 @@ sub xover( @x, @y ) {
         take ( ($xover1point <= $index <= $xover2point) ?? @value.reverse !!
             @value );
     }
-    return [Z] @crossed;
+    return ([Z] @crossed).Slip;
 }
 
 sub MAIN( :$length = 64, :$population-size =  200 ) {
 
     my @population = ( Bool.pick() xx $length ) xx $population-size;
+    my $best;
     loop {
 	say "Evaluating ";
 	my $evaluated = @population.map( { @$_ => road-royale( @$_ ) } ).Mix;
-        last if any( $evaluated.values ) == $length/4;
+        if any( $evaluated.values ) == $length/4 {
+	    $best = $evaluated.grep( *.value == $length/4 );
+	    last;
+	}
         my @reproductive-pool = $evaluated.roll( $population-size );
         my @crossed = @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } );
         my @mutated = @reproductive-pool.pick( $population-size*3/5).map( {mutate(@$_)} );
         @population = ( @crossed.Slip, @mutated.Slip, @reproductive-pool.pick( $population-size / 5 ).Slip );
     }
-    say @population;
+    say $best;
 }
