@@ -26,9 +26,10 @@ sub MAIN( :$length = 40, :$population-size = 200 ) {
     my @population = ( Bool.pick() xx $length ) xx $population-size;
     my $best;
     loop {
-        say "Evaluating ";
+        print "Evaluating ";
         my $evaluated = @population.unique.map( { @$_ => road-royale( @$_ ) } )
                 .Mix;
+        say $evaluated.values.max;
         if any( $evaluated.values ) == $length/4 {
             $best = $evaluated.grep( *.value == $length/4 );
             last;
