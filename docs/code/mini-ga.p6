@@ -3,7 +3,7 @@
 use v6;
 
 sub road-royale ( @χ ) {
-    @χ.rotor(4).map( {so @_.all + so @_.none}).sum;
+    @χ.rotor(4).grep(  so (*.all == True|False) ).elems;
 }
 
 sub mutate ( @x is copy ) {
@@ -23,7 +23,7 @@ sub xover( @x, @y ) {
 }
 
 sub MAIN( :$length = 64, :$population-size =  200 ) {
-
+    say road-royale( (True,True,True,True) );
     my @population = ( Bool.pick() xx $length ) xx $population-size;
     my $best;
     loop {

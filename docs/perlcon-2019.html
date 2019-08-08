@@ -44,38 +44,16 @@
 	  </section>
 	  
           <section>
-	    <h2>Evolutionary algorithms evolve <strong>encoded</strong> solutions</h2>
+	    <h2>Evolutionary algorithms evolve <strong>encoded</strong> solutions in populations</h2>
 	    <pre><code>    my @population = ( Bool.pick() xx $length ) xx $population-size;
 </code></pre>
 
 <aside class='notes'>Chromosomes are simply lists of random Bools, or bits. Other data structures are possible, but this works well for demos and many benchmark functions.</aside>
 </section>
 
-<section><h1> ... in <strong>populations</strong> ... </h1>
-<pre><code>sub initialize( UInt :$size,
-		UInt :$genome-length --> Array ) is export {
-    my @initial-population;
-    for 1..$size -> $p {
-	@initial-population.push:
-	  random-chromosome( $genome-length );
-    }
-    return @initial-population;
-}</code></pre>
-  </section>
-
 <section><h2>... through <strong>evaluation</strong>...</h2>
-  <pre><code>multi sub evaluate( :@population,
-	            :%fitness-of,
-	            :$evaluator --> Mix ) is export {
-    my MixHash $pop-bag;
-    for @population -> $p {
-	if  ! %fitness-of{$p}.defined {
-	    %fitness-of{$p} = $evaluator( $p );
-	}
-	$pop-bag{$p} = %fitness-of{$p};
-    }
-    return $pop-bag.Mix;
-}</code></pre>
+  <pre><code> my $evaluated = @population.map( { @$_ => road-royale( @$_ ) } ).Mix;
+  </code></pre>
 <aside class='notes'>Evaluation can take anything, but it returns a Mix. It works internally with a MixHash, wich is a mutable version of same. Here's an interesting thing that I haven't seen in any other language; I'm using elements and its "weight" as score. This is going to be useful later on. Also, I'm using a cache so that I don't evaluate twice the same thing. It's not important at the beginning, but by the end of the simulation lots of values are going to be the same.</aside>
 
 </section>
