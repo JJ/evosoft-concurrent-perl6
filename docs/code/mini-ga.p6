@@ -24,6 +24,8 @@ sub xover( @x, @y ) {
 
 sub MAIN( :$length = 64, :$population-size =  200 ) {
     say road-royale( (True,True,True,True) );
+    say road-royale( (True,False,True,True,True,False,True,True) );
+
     my @population = ( Bool.pick() xx $length ) xx $population-size;
     my $best;
     loop {
