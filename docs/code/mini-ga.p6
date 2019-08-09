@@ -38,10 +38,11 @@ sub MAIN( :$length = 40, :$population-size = 200 ) {
         }
 
         my @reproductive-pool = $evaluated.roll( $population-size );
-        my @crossed = @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } );
-        my @mutated = @reproductive-pool.pick( $population-size*3/5).map( {mutate(@$_)} );
-        @population = ( @crossed.Slip, @mutated.Slip, @reproductive-pool.pick( $population-size / 5 ).Slip );
-        @population.append( @best.map: *.key );
+        @population= @best.map: *.key;
+        @population.append: @reproductive-pool.pick( $population-size / 5 );
+        @population.append: @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } );
+        @population.append: @reproductive-pool.pick( $population-size*3/5).map( {mutate(@$_)} );
+        
     }
     say barcode(@best[0].key);
 }
