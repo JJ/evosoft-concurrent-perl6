@@ -79,9 +79,4 @@
 [20.174232, "o", "perl6 code/mini-ga.p6 --length=48 --population-size=400  18,11s user 0,08s system 101% cpu 17,875 total\r\n\u001b[1m\u001b[7m%\u001b[27m\u001b[1m\u001b[0m                                                                                                              \r \r"]
 [20.205795, "o", "\u001b]2;jmerelo@bojack: ~/txt/investigacion/papers/2018/evosoft-concurrent-perl6/docs\u0007\u001b]1;..nt-perl6/docs\u0007"]
 [20.214758, "o", "\r\u001b[0m\u001b[27m\u001b[24m\u001b[J\u001b[01;32m➜  \u001b[36mdocs\u001b[00m \u001b[01;34mgit:(\u001b[31mmaster\u001b[34m)\u001b[00m \u001b[K\u001b[?1h\u001b=\u001b[?2004h"]
-[21.841127, "o", "e"]
-[22.034745, "o", "\bex"]
-[22.148657, "o", "i"]
-[22.284305, "o", "t"]
-[22.624245, "o", "\u001b[?1l\u001b>\u001b[?2004l\r\r\n"]
-[22.625715, "o", "\u001b]2;exit\u0007\u001b]1;exit\u0007"]
+
