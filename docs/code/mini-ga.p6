@@ -22,17 +22,14 @@ sub xover( @x, @y ) {
     return ([Z] @crossed).Slip;
 }
 
-sub barcode( @χ ) {
-    @χ.map( {$_ ?? "■" !! "□"} ).join("");
-}
+sub barcode( @χ ) { @χ.map( {$_ ?? "■" !! "□"} ).join(""); }
 
 sub MAIN( :$length = 40, :$population-size = 200 ) {
     my @population = ( Bool.pick() xx $length ) xx $population-size;
     my @best;
     loop {
         print "Evaluating ";
-        my $evaluated = @population.unique.map( { @$_ => road-royale( @$_ ) } )
-                .Mix;
+        my $evaluated = @population.unique.map( { @$_ => road-royale( @$_ ) } ).Mix;
         say $evaluated.values.max;
         if any( $evaluated.values ) == $length/4 {
             @best = $evaluated.grep( *.value == $length/4 );
