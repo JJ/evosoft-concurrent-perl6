@@ -42,7 +42,7 @@ sub MAIN( :$length = 40, :$population-size = 200 ) {
         @population.append: @reproductive-pool.pick( $population-size / 5 );
         @population.append: @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } );
         @population.append: @reproductive-pool.pick( $population-size*3/5).map( {mutate(@$_)} );
-        
+
     }
     say barcode(@best[0].key);
 }
