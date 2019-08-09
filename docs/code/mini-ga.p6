@@ -30,15 +30,18 @@ sub MAIN( :$length = 40, :$population-size = 200 ) {
     loop {
         print "Evaluating ";
         my $evaluated = @population.unique.map( { @$_ => road-royale( @$_ ) } ).Mix;
-        say $evaluated.values.max;
+        my $best-so-far = $evaluated.values.max;
+        say $best-so-far;
+        @best = $evaluated.grep( *.value == $best-so-far );
         if any( $evaluated.values ) == $length/4 {
-            @best = $evaluated.grep( *.value == $length/4 );
             last;
         }
+
         my @reproductive-pool = $evaluated.roll( $population-size );
         my @crossed = @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } );
         my @mutated = @reproductive-pool.pick( $population-size*3/5).map( {mutate(@$_)} );
         @population = ( @crossed.Slip, @mutated.Slip, @reproductive-pool.pick( $population-size / 5 ).Slip );
+        @population.append( @best.map: *.key );
     }
     say barcode(@best[0].key);
 }

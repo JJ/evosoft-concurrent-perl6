@@ -52,9 +52,10 @@
 </section>
 
 <section><h2>... through <strong>evaluation</strong>...</h2>
-  <pre><code> my $evaluated = @population.map( { @$_ => road-royale( @$_ ) } ).Mix;
+  <pre><code>my $evaluated = @population.unique.map( { @$_ => road-royale( @$_ ) } ).Mix;</code>
+
   </code></pre>
-<aside class='notes'>Evaluation can take anything, but it returns a Mix. It works internally with a MixHash, wich is a mutable version of same. Here's an interesting thing that I haven't seen in any other language; I'm using elements and its "weight" as score. This is going to be useful later on. Also, I'm using a cache so that I don't evaluate twice the same thing. It's not important at the beginning, but by the end of the simulation lots of values are going to be the same.</aside>
+<aside class='notes'>Mixes are immutable, so we're good here, but we need them to be unique or it will add the weights. Here's an interesting thing that I haven't seen in any other language; I'm using elements and its "weight" as score. This is going to be useful later on. Also, I'm using a cache so that I don't evaluate twice the same thing. It's not important at the beginning, but by the end of the simulation lots of values are going to be the same.</aside>
 
 </section>
 
