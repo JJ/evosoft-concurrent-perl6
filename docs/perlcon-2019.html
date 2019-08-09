@@ -113,29 +113,16 @@ if any( $evaluated.values ) == $length/4 {
 
 <section><h1>Evolving...</h1>
   <img src='elitist-EA.gif' alt='EA demonstration with elitism'>
-  <aside class='notes'>
+  <aside class='notes'>This keeps the best for the next generation.</aside>
 </section>
-
+	</section>
 <!-- Concurrency -->
 <section>
   <section>
-    <h1>But we have <strong>concurrency</strong>!
-    </h1>
+    <h1>But we have <strong>concurrency</strong>!</h1>
   </section>
 	  
-  <section>
-	    <h1>Just add <strong>Perl&nbsp;6</strong></h1>
-	    <pre><code>proto evaluate( :@population,
-	        :%fitness-of, :$evaluator, |) { * };
-		multi sub evaluate( :@population,
-	        :%fitness-of,
-	        :$evaluator,
-                Bool :$auto-t --> Mix ) is export {
-</code></pre>
-<aside class='notes'>This is in the released Algorithm::Evolutionary::Simple. 
-</section>
-
-<section><h1>... for instant <strong>data-paralellism</strong></h1>
+<section><h1>Add Perl6 for instant <strong>data-paralellism</strong></h1>
 <pre><code>my @unique-population = @population.unique;
     my @evaluations = @unique-population.race.map( { $^p => $evaluator( $^p ) } );
     my MixHash $pop-bag;
@@ -143,7 +130,7 @@ if any( $evaluated.values ) == $length/4 {
         $pop-bag{$pair.key.item} = $pair.value;
     }
     return $pop-bag.Mix;
-}</code></pre>	      
+}</code></pre>
 <aside class='notes'>We had to do some shuffling to avoid deadlocks,
   but this is equivalent to a normal evaluation, only 
   faster. You can try and find parts of the code that can be
@@ -156,7 +143,7 @@ if any( $evaluated.values ) == $length/4 {
 </section>
 
 <section>
-  <h1>Task paralellism: Communicating sequential processes</h1>
+  <h2>Task paralellism: Communicating sequential processes</h2>
   <h1 class='fragment'><strong>Stateless</strong> process writes to/reads from <strong>channels</strong></h1> 
 </section>
 
@@ -180,22 +167,39 @@ if any( $evaluated.values ) == $length/4 {
 
 	<section>
 	  <section><h1>Channelize</h1>
-	    <pre><code> # Repeat...
+	    <pre><code> # Read from $channel-one and repeat...
 $population = generation( population => $population,
     fitness-of => %fitness-of,
     evaluator => &royal-road,
     population-size => $population-size);</code></pre>
 <pre class='fragment'><code>$to-mix.send( frequencies-best($population, 8) );
 </code></pre>
-    <!-- Experimental results -->
+
+<aside class='notes'>We are not sending the whole population, but only the per-gene frequency of every element in the population.</aside>
+	  </section>
+
+	  <section><h1>Threading threads</h1>
+	    <pre><code>$to-mix.send( @pair.pick ); # To avoid getting it hanged up
+    my @new-population =  crossover-frequencies( @pair[0], @pair[1] );
+    $channel-one.send( @new-population);
+	    </code></pre>
+	    <aside class='notes'>This mixes directly the frequencies of genes in the population</aside>
+	  </section>
+
+	  <section><h2>Does it scale?</h2>
+	    <img src='img/evaluations-second-freqs-ap.png' alt='scaling chart'>
+	    <aside class='notes'>I didn't have the fancy Log::Timeline to check it out. I'll have to look into that.</aside>
+	  </section>
+	</section>
+
   <section>
-    <h1>Does it work?</h1>
-    <h1 class='fragment'>Better?</h1>
-    <h1 class='fragment'>TL;DR: It does</h1>
-    <h1 class='fragment'>It more or less <strong>scales</strong></h1>
+    <h1>Concluding</h1>
+    <h1 class='fragment'>Science</h1>
+    <h1 class='fragment'>Open!</h1>
+    <h1 class='fragment'>New algorithms!</h1>
   </section>
 
-	</section>
+</section>
 
 <section><h2>Credits</h2>
   <ul class='credits'>
