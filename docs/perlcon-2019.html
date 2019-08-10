@@ -33,7 +33,6 @@
         </section>
 
         <!-- Evolutionary algorithms -->
-        <section>
 	  <section><h1>EAs are optimization methods</h1>
 	    <h2 class='fragment'>Optimize this</h2>
 	    <pre class='fragment'><code>sub road-royale ( @χ ) {
@@ -115,9 +114,9 @@ if any( $evaluated.values ) == $length/4 {
   <img src='elitist-EA.gif' alt='EA demonstration with elitism'>
   <aside class='notes'>This keeps the best for the next generation.</aside>
 </section>
-	</section>
+
 <!-- Concurrency -->
-<section>
+
   <section>
     <h1>But we have <strong>concurrency</strong>!</h1>
   </section>
@@ -147,7 +146,6 @@ if any( $evaluated.values ) == $length/4 {
   <h1 class='fragment'><strong>Stateless</strong> process writes to/reads from <strong>channels</strong></h1> 
 </section>
 
-          
 <section><h1><strong>Stateless</strong>⇒ 1 to 1 mapping input/output</h1>
   <h2 class='fragment'>For <strong>all</strong> functions.</h2>
 </section>
@@ -163,9 +161,7 @@ if any( $evaluated.values ) == $length/4 {
       of <em>pure</em> functions. </aside>
   </section>
 
-	</section>  
 
-	<section>
 	  <section><h1>Channelize</h1>
 	    <pre><code> # Read from $channel-one and repeat...
 $population = generation( population => $population,
@@ -190,7 +186,6 @@ $population = generation( population => $population,
 	    <img src='img/evaluations-second-freqs-ap.png' alt='scaling chart'>
 	    <aside class='notes'>I didn't have the fancy Log::Timeline to check it out. I'll have to look into that.</aside>
 	  </section>
-	</section>
 
   <section>
     <h1>Concluding</h1>
