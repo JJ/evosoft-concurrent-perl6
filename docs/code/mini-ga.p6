@@ -28,20 +28,17 @@ sub MAIN( :$length = 40, :$population-size = 200 ) {
     my @population = ( Bool.pick() xx $length ) xx $population-size;
     my @best;
     loop {
-        print "Evaluating ";
         my $evaluated = @population.unique.map( { @$_ => road-royale( @$_ ) } ).Mix;
         my $best-so-far = $evaluated.values.max;
-        say $best-so-far;
-        @best = $evaluated.grep( *.value == $best-so-far );
-        if any( $evaluated.values ) == $length/4 {
-            last;
-        }
+        say "Best so far $best-so-far";
+        @best = $evaluated.grep( *.value == $best-so-far ); # Keep till end
+        last if any( $evaluated.values ) == $length/4;
 
         my @reproductive-pool = $evaluated.roll( $population-size );
-        @population= @best.map: *.key;
-        @population.append: @reproductive-pool.pick( $population-size / 5 );
-        @population.append: @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } );
-        @population.append: @reproductive-pool.pick( $population-size*3/5).map( {mutate(@$_)} );
+        @population= (@best.map: *.key).Array
+            .append( @reproductive-pool.pick( $population-size / 5 ) )
+            .append( @reproductive-pool.pick( $population-size / 5 ).rotor(2).map( { xover( @$_[0], @$_[1] ) } ) )
+            .append: @reproductive-pool.pick( $population-size * 3/5 ).map( { mutate(@$_) } );
 
     }
     say barcode(@best[0].key);
